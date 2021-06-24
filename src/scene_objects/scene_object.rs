@@ -22,7 +22,7 @@ pub trait SceneObject {
       None => ()
     }
   }
-  fn children(&self) -> Option<Vec<Arc<dyn SceneObject>>> {
+  fn children(&self) -> Option<Vec<Box<dyn SceneObject>>> {
     None
   }
 }

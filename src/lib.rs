@@ -19,7 +19,7 @@ pub struct WebClient{
     gl: WebGlRenderingContext,
     width: f32,
     height: f32,
-    root: Vec<Box<dyn SceneObject + Send>>,
+    root: Vec<Box<dyn SceneObject>>,
 }
 
 #[wasm_bindgen]
@@ -31,8 +31,8 @@ impl WebClient {
         console_error_panic_hook::set_once();
         let gl = gl_setup::init_webgl_context().unwrap();
         let mut root = Vec::new();
-        root.push(Box::new(Color2D::new(Some(&gl))) as Box<dyn SceneObject + Send>);
-        root.push(Box::new(TriDown::new(Some(&gl))) as Box<dyn SceneObject + Send>);
+        root.push(Box::new(Color2D::new(Some(&gl))) as Box<dyn SceneObject>);
+        root.push(Box::new(TriDown::new(Some(&gl))) as Box<dyn SceneObject>);
 
         Self {
           width: width,
