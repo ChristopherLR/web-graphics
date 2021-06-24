@@ -1,40 +1,62 @@
 extern crate wasm_bindgen;
+#[macro_use]
+extern crate lazy_static;
 use wasm_bindgen::prelude::*;
 mod gl_setup;
 mod programs;
 mod helpers;
 mod shaders;
+mod scene_objects;
+
+use scene_objects::SceneObject;
+use std::sync::{ Arc, Mutex };
+use programs::{ Color2D, TriDown};
 use web_sys::*;
 use web_sys::WebGlRenderingContext as GL;
 
 #[wasm_bindgen]
-pub struct WebClient {
+pub struct WebClient{
     gl: WebGlRenderingContext,
-    program: programs::Color2D,
+    width: f32,
+    height: f32,
+    root: Vec<Box<dyn SceneObject + Send>>,
 }
 
 #[wasm_bindgen]
 impl WebClient {
     #[wasm_bindgen(constructor)]
-    pub fn new() -> Self {
+    pub fn new(height: f32, width: f32) -> Self {
         log("Creating Client");
 
         console_error_panic_hook::set_once();
         let gl = gl_setup::init_webgl_context().unwrap();
+        let mut root = Vec::new();
+        root.push(Box::new(Color2D::new(Some(&gl))) as Box<dyn SceneObject + Send>);
+        root.push(Box::new(TriDown::new(Some(&gl))) as Box<dyn SceneObject + Send>);
 
         Self {
-          program: programs::Color2D::new(&gl),
-          gl: gl
+          width: width,
+          height: height,
+          gl: gl,
+          root: root
         }
     }
 
-    pub fn update(&mut self, _time: f32, _height: f32, _width: f32) -> Result<(), JsValue> {
+    pub fn update_size(&mut self, height: f32, width: f32) {
+        self.width = width;
+        self.height = height;
+    }
+
+    pub fn update(&mut self, _time: f32) -> Result<(), JsValue> {
+        // log(&format!("{}", _time));
         Ok(())
     }
 
     pub fn render(&self){
         self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
-        self.program.render(&self.gl, 0., 1., 0., 1., 1., 1.);
+        for child in self.root.iter() {
+            child.draw(Some(&self.gl))
+        }
     }
 }
 

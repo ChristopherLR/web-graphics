@@ -8,7 +8,7 @@ use super::super::shaders::{ color_2d_frag, color_2d_vert };
 use super::super::log;
 use super::super::scene_objects::SceneObject;
 
-pub struct Color2D {
+pub struct TriDown {
   program: WebGlProgram,
   vertex_length: usize,
   vertex_buffer: WebGlBuffer, 
@@ -17,14 +17,14 @@ pub struct Color2D {
   u_transform: WebGlUniformLocation,
 }
 
-impl Color2D {
+impl TriDown {
   pub fn new(gl: Option<&GL>) -> Self {
     let gl = gl.unwrap();
     let program = link_program(&gl, color_2d_vert::SHADER, color_2d_frag::SHADER).unwrap();
 
     let vertices: [f32; 6] = [
-      -1., -1.,
-      1., -1.,
+      -1., 1.,
+      1., 1.,
       0., 0.,
     ];
 
@@ -46,10 +46,10 @@ impl Color2D {
   }
 }
 
-unsafe impl Send for Color2D {}
-unsafe impl Sync for Color2D {}
+unsafe impl Send for TriDown {}
+unsafe impl Sync for TriDown {}
 
-impl SceneObject for Color2D {
+impl SceneObject for TriDown {
   fn draw_self(&self, gl: Option<&GL>){
     let gl = gl.unwrap();
     gl.use_program(Some(&self.program));
