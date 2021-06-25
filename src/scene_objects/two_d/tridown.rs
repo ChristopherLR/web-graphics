@@ -1,26 +1,25 @@
 use wasm_bindgen::JsCast;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::*;
-use wasm_bindgen::prelude::*;
 use js_sys::WebAssembly;
-use super::super::helpers::*;
-use super::super::shaders::{ color_2d_frag, color_2d_vert };
-use super::super::log;
-use super::super::scene_objects::SceneObject;
+use crate::helpers::*;
+use crate::shaders::{ color_2d_frag, color_2d_vert };
+use crate::math::matrix::*;
+use crate::scene_objects::SceneObject;
 
 pub struct TriDown {
   program: WebGlProgram,
   vertex_length: usize,
   vertex_buffer: WebGlBuffer, 
+  matrices: Matrices,
   u_color: WebGlUniformLocation,
   u_opacity: WebGlUniformLocation,
   u_transform: WebGlUniformLocation,
 }
 
 impl TriDown {
-  pub fn new(gl: Option<&GL>) -> Self {
-    let gl = gl.unwrap();
-    let program = link_program(&gl, color_2d_vert::SHADER, color_2d_frag::SHADER).unwrap();
+  pub fn new(gl: &GL) -> Self {
+    let program = link_program(gl, color_2d_vert::SHADER, color_2d_frag::SHADER).unwrap();
 
     let vertices: [f32; 6] = [
       -1., 1.,
@@ -42,12 +41,10 @@ impl TriDown {
       vertex_length: vertices.len(),
       vertex_buffer: buffer,
       program: program,
+      matrices: Matrices::new(),
     }
   }
 }
-
-unsafe impl Send for TriDown {}
-unsafe impl Sync for TriDown {}
 
 impl SceneObject for TriDown {
   fn draw_self(&self, gl: Option<&GL>){
@@ -59,15 +56,14 @@ impl SceneObject for TriDown {
     gl.uniform4f(Some(&self.u_color), 0.0, 0.5, 0.5, 1.0);
     gl.uniform1f(Some(&self.u_opacity), 1.0);
 
-    let t_matrix = translation_matrix(0.0,0.0,0.0);
-    let s_matrix = scale_matrix(1.0,1.0,1.0);
+    let mut model_matrix = self.matrices.calc_model_matrix();
+    let mut t_mat = Matrix::new();
+    t_mat.translate(0.5, 0.5, 0.0);
+    t_mat.scale(0.5, 0.5, 0.0);
+    model_matrix = model_matrix * t_mat;
+    model_matrix.print();
 
-    //print_matrix(t_matrix);
-    //print_matrix(s_matrix);
-
-    let model_matrix = matrix_mul(t_matrix, s_matrix);
-    //print_matrix(model_matrix);
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &model_matrix);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &model_matrix.0);
     gl.draw_arrays(GL::TRIANGLES, 0, (self.vertex_length / 2) as i32)
   }
 }

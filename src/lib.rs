@@ -1,25 +1,35 @@
 extern crate wasm_bindgen;
-#[macro_use]
-extern crate lazy_static;
-use wasm_bindgen::prelude::*;
+extern crate wee_alloc;
 mod gl_setup;
 mod programs;
 mod helpers;
 mod shaders;
 mod scene_objects;
+mod math;
 
-use scene_objects::SceneObject;
+use wasm_bindgen::prelude::*;
+use scene_objects::{ SceneObject, Pivot, two_d::TriDown };
 use std::sync::{ Arc, Mutex };
-use programs::{ Color2D, TriDown};
+use programs::{ Color2D };
 use web_sys::*;
 use web_sys::WebGlRenderingContext as GL;
 
+// Use `wee_alloc` as the global allocator.
+#[global_allocator]
+static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
 #[wasm_bindgen]
 pub struct WebClient{
-    gl: WebGlRenderingContext,
+    gl: Mutex<Arc<WebGlRenderingContext>>,
     width: f32,
     height: f32,
-    root: Vec<Box<dyn SceneObject>>,
+    root: Pivot,
+}
+
+#[wasm_bindgen]
+extern {
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
 }
 
 #[wasm_bindgen]
@@ -30,9 +40,10 @@ impl WebClient {
 
         console_error_panic_hook::set_once();
         let gl = gl_setup::init_webgl_context().unwrap();
-        let mut root = Vec::new();
-        root.push(Box::new(Color2D::new(Some(&gl))) as Box<dyn SceneObject>);
-        root.push(Box::new(TriDown::new(Some(&gl))) as Box<dyn SceneObject>);
+        let mut root = Pivot::new();
+        root.add_child(Box::new(Color2D::new(&gl)));
+        root.add_child(Box::new(TriDown::new(&gl)));
+        let gl = Mutex::new(Arc::new(gl));
 
         Self {
           width: width,
@@ -53,15 +64,8 @@ impl WebClient {
     }
 
     pub fn render(&self){
-        self.gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
-        for child in self.root.iter() {
-            child.draw(Some(&self.gl))
-        }
+        let gl = self.gl.lock().unwrap();
+        gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
+        self.root.draw(Some(&gl));
     }
-}
-
-#[wasm_bindgen]
-extern {
-    #[wasm_bindgen]
-    fn log(s: &str);
 }

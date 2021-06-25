@@ -1,11 +1,10 @@
 use wasm_bindgen::JsCast;
 use web_sys::WebGlRenderingContext as GL;
 use web_sys::*;
-use wasm_bindgen::prelude::*;
 use js_sys::WebAssembly;
-use super::super::helpers::*;
+use crate::helpers::*;
+use crate::math::matrix::*;
 use super::super::shaders::{ color_2d_frag, color_2d_vert };
-use super::super::log;
 use super::super::scene_objects::SceneObject;
 
 pub struct Color2D {
@@ -18,9 +17,8 @@ pub struct Color2D {
 }
 
 impl Color2D {
-  pub fn new(gl: Option<&GL>) -> Self {
-    let gl = gl.unwrap();
-    let program = link_program(&gl, color_2d_vert::SHADER, color_2d_frag::SHADER).unwrap();
+  pub fn new(gl: &GL) -> Self {
+    let program = link_program(gl, color_2d_vert::SHADER, color_2d_frag::SHADER).unwrap();
 
     let vertices: [f32; 6] = [
       -1., -1.,
@@ -45,9 +43,6 @@ impl Color2D {
     }
   }
 }
-
-unsafe impl Send for Color2D {}
-unsafe impl Sync for Color2D {}
 
 impl SceneObject for Color2D {
   fn draw_self(&self, gl: Option<&GL>){
