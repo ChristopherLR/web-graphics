@@ -1,4 +1,4 @@
-use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGl2RenderingContext as GL;
 
 pub trait SceneObject {
   fn draw_self(&self, gl: Option<&GL>){}

@@ -12,7 +12,7 @@ use scene_objects::{ SceneObject, Pivot, two_d::TriDown };
 use std::sync::{ Arc, Mutex };
 use programs::{ Color2D };
 use web_sys::*;
-use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGl2RenderingContext as GL;
 
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]
@@ -20,7 +20,7 @@ static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub struct WebClient{
-    gl: Mutex<Arc<WebGlRenderingContext>>,
+    gl: Mutex<Arc<GL>>,
     width: f32,
     height: f32,
     root: Pivot,

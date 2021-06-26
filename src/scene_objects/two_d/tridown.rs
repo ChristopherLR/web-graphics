@@ -1,5 +1,5 @@
 use wasm_bindgen::JsCast;
-use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGl2RenderingContext as GL;
 use web_sys::*;
 use js_sys::WebAssembly;
 use crate::helpers::*;
@@ -13,7 +13,6 @@ pub struct TriDown {
   vertex_buffer: WebGlBuffer, 
   matrices: Matrices,
   u_color: WebGlUniformLocation,
-  u_opacity: WebGlUniformLocation,
   u_transform: WebGlUniformLocation,
 }
 
@@ -37,7 +36,6 @@ impl TriDown {
     Self {
       u_color: gl.get_uniform_location(&program, "u_color").unwrap(),
       u_transform: gl.get_uniform_location(&program, "u_transform").unwrap(),
-      u_opacity: gl.get_uniform_location(&program, "u_opacity").unwrap(),
       vertex_length: vertices.len(),
       vertex_buffer: buffer,
       program: program,
@@ -54,12 +52,10 @@ impl SceneObject for TriDown {
     gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 0, 0);
     gl.enable_vertex_attrib_array(0);
     gl.uniform4f(Some(&self.u_color), 0.0, 0.5, 0.5, 1.0);
-    gl.uniform1f(Some(&self.u_opacity), 1.0);
 
     let mut model_matrix = self.matrices.calc_model_matrix();
     let mut t_mat = Matrix::new();
-    t_mat.translate(0.5, 0.5, 0.0);
-    t_mat.scale(0.5, 0.5, 0.0);
+    t_mat.translate(0.25, 0.25, 0.0);
     model_matrix = model_matrix * t_mat;
     model_matrix.print();
 

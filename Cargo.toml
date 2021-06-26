@@ -25,7 +25,7 @@ features = [
   'MouseEvent',
   'WebGlBuffer',
   'WebGlProgram',
-  'WebGlRenderingContext',
+  'WebGl2RenderingContext',
   'WebGlShader',
   'WebGlUniformLocation',
   'Window',

@@ -2,7 +2,7 @@ const rust = import('./pkg/index')
 
 const canvas = document.getElementById('rustCanvas')
 
-const gl = canvas.getContext('webgl', { antialias: true })
+const gl = canvas.getContext('webgl2', { antialias: true })
 
 const updateCanvas = () => {
   canvas.height = window.innerHeight

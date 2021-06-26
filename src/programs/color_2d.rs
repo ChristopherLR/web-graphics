@@ -1,5 +1,5 @@
 use wasm_bindgen::JsCast;
-use web_sys::WebGlRenderingContext as GL;
+use web_sys::WebGl2RenderingContext as GL;
 use web_sys::*;
 use js_sys::WebAssembly;
 use crate::helpers::*;
@@ -12,7 +12,6 @@ pub struct Color2D {
   vertex_length: usize,
   vertex_buffer: WebGlBuffer, 
   u_color: WebGlUniformLocation,
-  u_opacity: WebGlUniformLocation,
   u_transform: WebGlUniformLocation,
 }
 
@@ -36,7 +35,6 @@ impl Color2D {
     Self {
       u_color: gl.get_uniform_location(&program, "u_color").unwrap(),
       u_transform: gl.get_uniform_location(&program, "u_transform").unwrap(),
-      u_opacity: gl.get_uniform_location(&program, "u_opacity").unwrap(),
       vertex_length: vertices.len(),
       vertex_buffer: buffer,
       program: program,
@@ -52,16 +50,11 @@ impl SceneObject for Color2D {
     gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 0, 0);
     gl.enable_vertex_attrib_array(0);
     gl.uniform4f(Some(&self.u_color), 0.0, 0.5, 0.5, 1.0);
-    gl.uniform1f(Some(&self.u_opacity), 1.0);
 
     let t_matrix = translation_matrix(0.0,0.0,0.0);
     let s_matrix = scale_matrix(1.0,1.0,1.0);
 
-    //print_matrix(t_matrix);
-    //print_matrix(s_matrix);
-
     let model_matrix = matrix_mul(t_matrix, s_matrix);
-    //print_matrix(model_matrix);
     gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &model_matrix);
     gl.draw_arrays(GL::TRIANGLES, 0, (self.vertex_length / 2) as i32)
   }
