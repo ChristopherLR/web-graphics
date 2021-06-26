@@ -1,5 +1,7 @@
 use web_sys::*;
 use web_sys::WebGl2RenderingContext as GL;
+use wasm_bindgen::JsCast;
+use js_sys::WebAssembly;
 
 
 pub fn link_program(gl: &GL, vert_src: &str, frag_src: &str) -> Result<WebGlProgram, String> {
@@ -34,4 +36,12 @@ fn compile_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader
         .unwrap_or_else(|| String::from("Unable to get shader info log"))
     )
   }
+}
+
+pub fn create_buffer<T>(gl: &GL, array: &[T]) -> (js_sys::Float32Array, WebGlBuffer) {
+    let memory_buffer = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
+    let buffer_location = array.as_ptr() as u32 / 4;
+    let js_buffer = js_sys::Float32Array::new(&memory_buffer).subarray(buffer_location, buffer_location + array.len() as u32);
+    let buffer = gl.create_buffer().ok_or("Failed to create buffer").unwrap();
+    (js_buffer, buffer)
 }
