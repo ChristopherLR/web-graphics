@@ -12,6 +12,7 @@ use scene_objects::{ SceneObject, Pivot, two_d::TriDown };
 use std::sync::{ Arc, Mutex };
 use programs::{ Color2D };
 use web_sys::*;
+use chrono::prelude::*;
 use web_sys::WebGl2RenderingContext as GL;
 
 // Use `wee_alloc` as the global allocator.
@@ -23,6 +24,7 @@ pub struct WebClient{
     gl: Mutex<Arc<GL>>,
     width: f32,
     height: f32,
+    time: f64,
     root: Pivot,
 }
 
@@ -49,7 +51,8 @@ impl WebClient {
           width: width,
           height: height,
           gl: gl,
-          root: root
+          root: root,
+          time: 0.0,
         }
     }
 
@@ -58,12 +61,18 @@ impl WebClient {
         self.height = height;
     }
 
-    pub fn update(&mut self, _time: f32) -> Result<(), JsValue> {
-        // log(&format!("{}", _time));
+    pub fn update(&mut self, time: f64) -> Result<(), JsValue> {
+        let old_time : f64 = self.time;
+        // log(&format!("{}", old_time));
+        self.time = time as f64;
+        // log(&format!("{}", time));
+        let dt = self.time - old_time;
+        self.root.update(dt as f32);
+        // log(&format!("{}", dt));
         Ok(())
     }
 
-    pub fn render(&self){
+    pub fn render(&mut self){
         let gl = self.gl.lock().unwrap();
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         self.root.draw(Some(&gl));

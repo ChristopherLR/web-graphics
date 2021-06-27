@@ -43,6 +43,9 @@ impl Color2D {
 }
 
 impl SceneObject for Color2D {
+  fn name(&self) -> &str {
+    "C2D"
+  }
   fn draw_self(&self, gl: Option<&GL>){
     let gl = gl.unwrap();
     gl.use_program(Some(&self.program));

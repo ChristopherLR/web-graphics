@@ -47,7 +47,7 @@ rust.then((m) => {
       elapsedTime = currTime - lastDrawTime;
       lastDrawTime = currTime
       
-      webClient.update(elapsedTime);
+      webClient.update(currTime);
       webClient.render();
     }
   }

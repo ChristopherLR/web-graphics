@@ -20,4 +20,10 @@ impl SceneObject for Pivot {
   fn children(&self) -> Option<&Vec<Box<dyn SceneObject>>> {
     Some(&self.children)
   }
+  fn mut_children(&mut self) -> Option<&mut Vec<Box<dyn SceneObject>>> {
+    Some(&mut self.children)
+  }
+  fn name(&self) -> &str {
+    "Pivot"
+  }
 }

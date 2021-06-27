@@ -116,6 +116,9 @@ pub struct Matrices {
   pub translation_matrix: Matrix,
   pub rotation_matrix: Matrix,
   pub scale_matrix: Matrix,
+  pub position: [f32; 3],
+  pub angle: [f32; 3],
+  pub scale: [f32; 3],
 }
 
 impl Matrices {
@@ -125,6 +128,9 @@ impl Matrices {
       translation_matrix: Matrix::new(),
       scale_matrix: Matrix::new(),
       rotation_matrix: Matrix::new(),
+      position: [0.0, 0.0, 0.0],
+      angle: [0.0, 0.0, 0.0],
+      scale: [1.0, 1.0, 1.0],
     }
   }
   pub fn calc_model_matrix(&self) -> Matrix {
@@ -136,6 +142,128 @@ impl Matrices {
     let r = t.mat_mul(r_mat);
     let s = r.mat_mul(s_mat);
     Matrix(s.0)
+  }
+  pub fn set_position(&mut self, tx: f32, ty: f32, tz: f32){
+    self.position = [tx, ty, tz];
+
+    self.translation_matrix.0[3] = tx;
+    self.translation_matrix.0[7] = ty;
+    self.translation_matrix.0[11] = tz;
+  }
+  pub fn set_position_arr(&mut self, pos: [f32; 3]){
+    self.position = pos; 
+
+    self.translation_matrix.0[3] = pos[0];
+    self.translation_matrix.0[7] = pos[1];
+    self.translation_matrix.0[11] = pos[1];
+  }
+  pub fn set_rotation(&mut self, rx: f32, ry: f32, rz: f32){
+    self.angle = [rx, ry, rz];
+
+    self.rotation_matrix.0[0] =  ry.cos()*rz.cos();
+    self.rotation_matrix.0[1] = -ry.cos()*rz.sin();
+    self.rotation_matrix.0[2] =  ry.sin();
+    self.rotation_matrix.0[3] =  0.0;
+
+    self.rotation_matrix.0[4] =  rx.sin()*ry.sin()*rz.cos() + rx.cos()*rz.sin();
+    self.rotation_matrix.0[5] =  rx.cos()*rz.cos() - rx.sin()*ry.sin()*rz.sin();
+    self.rotation_matrix.0[6] =  -rx.sin()*ry.cos();
+    self.rotation_matrix.0[7] =  0.0;
+
+    self.rotation_matrix.0[8] =  rx.sin()*rz.sin() -rx.cos()*ry.sin()*rz.cos();
+    self.rotation_matrix.0[9] =  rx.cos()*ry.sin()*rz.sin() + rx.sin()*rz.cos();
+    self.rotation_matrix.0[10]=  rx.cos()*ry.cos();
+    self.rotation_matrix.0[11]=  0.0;
+
+    self.rotation_matrix.0[12]= 0.0; 
+    self.rotation_matrix.0[13]= 0.0; 
+    self.rotation_matrix.0[14]= 0.0; 
+    self.rotation_matrix.0[15]= 1.0;
+  }
+  pub fn set_rotation_arr(&mut self, rotation: [f32; 3]){
+    self.set_rotation(rotation[0], rotation[1], rotation[2]);
+  }
+  pub fn rotate_x(&mut self, radians: f32){
+    self.angle[0] += radians; 
+
+    let mut new_rot = [0.0; 16];
+
+    new_rot[0] = 1.0;
+    new_rot[1] = 0.0;
+    new_rot[2] = 0.0;
+    new_rot[3] = 0.0;
+
+    new_rot[4] =  0.0;
+    new_rot[5] =  radians.cos();
+    new_rot[6] = -radians.sin();
+    new_rot[7] =  0.0;
+
+    new_rot[8] = 0.0;
+    new_rot[9] = radians.sin();
+    new_rot[10]= radians.cos();
+    new_rot[11]= 0.0;
+
+    new_rot[12]= 0.0; 
+    new_rot[13]= 0.0; 
+    new_rot[14]= 0.0; 
+    new_rot[15]= 1.0;
+
+    let new_rot = matrix_mul(self.rotation_matrix.0, new_rot);
+    self.rotation_matrix.0 = new_rot;
+  }
+  pub fn rotate_y(&mut self, radians: f32){
+    self.angle[1] += radians; 
+    let mut new_rot = [0.0; 16];
+
+    new_rot[0] = radians.cos();
+    new_rot[1] = 0.0;
+    new_rot[2] = radians.sin();
+    new_rot[3] = 0.0;
+
+    new_rot[4] = 0.0;
+    new_rot[5] = 1.0;
+    new_rot[6] = 0.0;
+    new_rot[7] = 0.0;
+
+    new_rot[8] = -radians.sin();
+    new_rot[9] = 0.0;
+    new_rot[10]= radians.cos();
+    new_rot[11]= 0.0;
+
+    new_rot[12]= 0.0; 
+    new_rot[13]= 0.0; 
+    new_rot[14]= 0.0; 
+    new_rot[15]= 1.0;
+
+    let new_rot = matrix_mul(self.rotation_matrix.0, new_rot);
+    self.rotation_matrix.0 = new_rot;
+  }
+  pub fn rotate_z(&mut self, radians: f32){
+    self.angle[2] += radians; 
+    let mut new_rot = [0.0; 16];
+
+    new_rot[0] =  radians.cos();
+    new_rot[1] = -radians.sin();
+    new_rot[2] = 0.0;
+    new_rot[3] = 0.0;
+
+    new_rot[4] = radians.sin();
+    new_rot[5] = radians.cos();
+    new_rot[6] = 0.0;
+    new_rot[7] = 0.0;
+
+    new_rot[8] = 0.0;
+    new_rot[9] = 0.0;
+    new_rot[10]= 1.0;
+    new_rot[11]= 0.0;
+
+    new_rot[12]= 0.0; 
+    new_rot[13]= 0.0; 
+    new_rot[14]= 0.0; 
+    new_rot[15]= 1.0;
+
+    let new_rot = matrix_mul(self.rotation_matrix.0, new_rot);
+    self.rotation_matrix.0 = new_rot;
   }
 }
 

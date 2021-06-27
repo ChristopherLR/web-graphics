@@ -2,6 +2,9 @@ use web_sys::*;
 use web_sys::WebGl2RenderingContext as GL;
 use wasm_bindgen::JsCast;
 use js_sys::WebAssembly;
+use js_sys::Object;
+use js_sys::{ Float32Array, Float64Array, Uint16Array };
+use std::mem::size_of;
 
 
 pub fn link_program(gl: &GL, vert_src: &str, frag_src: &str) -> Result<WebGlProgram, String> {
@@ -38,10 +41,25 @@ fn compile_shader(gl: &GL, shader_type: u32, source: &str) -> Result<WebGlShader
   }
 }
 
-pub fn create_buffer<T>(gl: &GL, array: &[T]) -> (js_sys::Float32Array, WebGlBuffer) {
-    let memory_buffer = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
-    let buffer_location = array.as_ptr() as u32 / 4;
-    let js_buffer = js_sys::Float32Array::new(&memory_buffer).subarray(buffer_location, buffer_location + array.len() as u32);
+pub fn size_of_type<T, const N: usize>(_: &[T; N]) -> usize {
+  size_of::<T>()
+}
+
+pub fn get_ptr<T, const N: usize>(item: &[T; N]) -> u32 {
+  item.as_ptr() as u32 / (size_of_type(item) as u32)
+}
+
+pub fn create_buffer<T, const N: usize>(gl: &GL, array: &[T; N], array_type: u32) -> WebGlBuffer {
     let buffer = gl.create_buffer().ok_or("Failed to create buffer").unwrap();
-    (js_buffer, buffer)
+    let memory = wasm_bindgen::memory().dyn_into::<WebAssembly::Memory>().unwrap().buffer();
+    gl.bind_buffer(array_type, Some(&buffer));
+    let location = get_ptr(&array);
+    let data_array: Object = match size_of_type(array) {
+      2 => Object::from(Uint16Array::new(&memory).subarray(location, location + array.len() as u32)),
+      4 => Object::from(Float32Array::new(&memory).subarray(location, location + array.len() as u32)),
+      8 => Object::from(Float64Array::new(&memory).subarray(location, location + array.len() as u32)),
+      _ => panic!("Unimplemented"),
+    };
+    gl.buffer_data_with_array_buffer_view(array_type, &data_array, GL::STATIC_DRAW);
+    buffer
 }
