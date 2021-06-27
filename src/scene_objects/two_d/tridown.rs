@@ -56,6 +56,9 @@ impl SceneObject for TriDown {
   }
 
   fn update_self(&mut self, dt: f32) {
+    // self.matrices.rotate_x(0.01);
+    self.matrices.rotate_y(0.01);
+    // self.matrices.rotate_z(0.01);
   }
 
   fn draw_self(&self, gl: Option<&GL>){
@@ -68,13 +71,9 @@ impl SceneObject for TriDown {
 
     gl.uniform4f(Some(&self.u_color), 0.0, 0.5, 0.5, 1.0);
 
-    let mut model_matrix = self.matrices.calc_model_matrix();
-    let mut t_mat = Matrix::new();
-    t_mat.translate(0.25, 0.25, 0.0);
-    model_matrix = model_matrix * t_mat;
-    // model_matrix.print();
+    let m_mat = self.matrices.calc_model_matrix();
 
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &model_matrix.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &m_mat.0);
     gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
   }
 }
