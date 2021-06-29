@@ -1,17 +1,24 @@
 use web_sys::WebGl2RenderingContext as GL;
+use crate::math::matrix::Matrix;
 use crate::log;
 
 pub trait SceneObject {
-  fn draw_self(&self, gl: Option<&GL>){}
-  fn draw(&mut self, gl: Option<&GL>) {
+  fn draw_self(&mut self, gl: Option<&GL>){}
+  fn get_model_matrix(&self) -> &Matrix;
+  fn get_mut_model_matrix(&mut self) -> &Matrix;
+  fn calc_model_matrix(&mut self, parent_matrix: Option<&Matrix>);
+
+  fn draw(&mut self, gl: Option<&GL>, parent_matrix: Option<&Matrix>) {
+    self.calc_model_matrix(parent_matrix);
     self.draw_self(gl);
+    let p_matrix = self.get_model_matrix().clone();
     match self.mut_children() {
       Some(children) => {
         for i in 0..children.len(){
           let childs = children.get_mut(i);
           match childs {
             Some(child) =>{
-              child.draw(gl);
+              child.draw(gl, Some(&p_matrix));
             },
             None => (),
           }

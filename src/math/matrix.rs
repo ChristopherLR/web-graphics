@@ -36,15 +36,196 @@ impl Matrix {
     self.0[14] = 0.0;
     self.0[15] = 1.0;
   }
-  pub fn translate(&mut self, tx: f32, ty: f32, tz: f32) {
-    self.0[3] += tx;
-    self.0[7] += ty;
-    self.0[11] += tz;
+  pub fn clone(&self) -> Matrix {
+    let mut matrix = [0.0; 16];
+
+    matrix[0]  = self.0[0];
+    matrix[1]  = self.0[1];
+    matrix[2]  = self.0[2];
+    matrix[3]  = self.0[3];
+  
+    matrix[4]  = self.0[4];
+    matrix[5]  = self.0[5];
+    matrix[6]  = self.0[6];
+    matrix[7]  = self.0[7];
+  
+    matrix[8]  = self.0[8];
+    matrix[9]  = self.0[9];
+    matrix[10] = self.0[10];
+    matrix[11] = self.0[11];
+  
+    matrix[12] = self.0[12];
+    matrix[13] = self.0[13];
+    matrix[14] = self.0[14];
+    matrix[15] = self.0[15];
+  
+    Matrix(matrix)
   }
-  pub fn scale(&mut self, sx: f32, sy: f32, sz: f32) {
-    self.0[0] *= sx;
-    self.0[5] *= sy;
-    self.0[10] *= sz;
+  pub fn translate_arr(&mut self, t: [f32; 3]){
+    self.translate(t[0], t[1], t[2])
+  }
+  pub fn translate(&mut self, x: f32, y: f32, z: f32){
+    let tmp_0 = self.0[0];
+    let tmp_1 = self.0[1];
+    let tmp_2 = self.0[2];
+    let tmp_3 = self.0[3];
+    self.0[3] = tmp_0 * x + tmp_1 * y + tmp_2 * z + tmp_3;
+
+    let tmp_0 = self.0[4];
+    let tmp_1 = self.0[5];
+    let tmp_2 = self.0[6];
+    let tmp_3 = self.0[7];
+    self.0[7] = tmp_0 * x + tmp_1 * y + tmp_2 * z + tmp_3;
+
+    let tmp_0 = self.0[8];
+    let tmp_1 = self.0[9];
+    let tmp_2 = self.0[10];
+    let tmp_3 = self.0[11];
+    self.0[11] = tmp_0 * x + tmp_1 * y + tmp_2 * z + tmp_3;
+
+    let tmp_0 = self.0[12];
+    let tmp_1 = self.0[13];
+    let tmp_2 = self.0[14];
+    let tmp_3 = self.0[15];
+    self.0[15] = tmp_0 * x + tmp_1 * y + tmp_2 * z + tmp_3;
+  }
+  pub fn set_translation(&mut self, tx: f32, ty: f32, tz: f32){
+    self.ident();
+    self.0[3] = tx;
+    self.0[7] = ty;
+    self.0[11] = tz;
+  }
+  pub fn set_translation_arr(&mut self, pos: [f32; 3]){
+    self.set_translation(pos[0], pos[1], pos[2])
+  }
+
+  pub fn rotate_x(&mut self, radians: f32){
+    let (rxc, rxs) = (radians.cos(), radians.sin());
+
+    let tmp_1 = self.0[1];
+    let tmp_2 = self.0[2];
+    self.0[1] = tmp_1*rxc + tmp_2*rxs;
+    self.0[2] = tmp_2*rxc - tmp_1*rxs;
+
+    let tmp_1 = self.0[5];
+    let tmp_2 = self.0[6];
+    self.0[5] = tmp_1*rxc + tmp_2*rxs;
+    self.0[6] = tmp_2*rxc - tmp_1*rxs;
+
+    let tmp_1 = self.0[9];
+    let tmp_2 = self.0[10];
+    self.0[9] = tmp_1*rxc + tmp_2*rxs;
+    self.0[10]= tmp_2*rxc - tmp_1*rxs;
+
+    let tmp_1 = self.0[13];
+    let tmp_2 = self.0[14];
+    self.0[13]= tmp_1*rxc + tmp_2*rxs;
+    self.0[14]= tmp_2*rxc - tmp_1*rxs;
+  }
+  pub fn rotate_y(&mut self, radians: f32){
+    let (rxc, rxs) = (radians.cos(), radians.sin());
+
+    let tmp_0 = self.0[0];
+    let tmp_2 = self.0[2];
+    self.0[0] = tmp_0*rxc - tmp_2*rxs;
+    self.0[2] = tmp_0*rxs + tmp_2*rxc;
+
+    let tmp_0 = self.0[4];
+    let tmp_2 = self.0[6];
+    self.0[4] = tmp_0*rxc - tmp_2*rxs;
+    self.0[6] = tmp_0*rxs + tmp_2*rxc;
+
+    let tmp_0 = self.0[8];
+    let tmp_2 = self.0[10];
+    self.0[8]  = tmp_0*rxc - tmp_2*rxs;
+    self.0[10] = tmp_0*rxs + tmp_2*rxc;
+
+    let tmp_0 = self.0[12];
+    let tmp_2 = self.0[14];
+    self.0[12] = tmp_0*rxc - tmp_2*rxs;
+    self.0[14] = tmp_0*rxs + tmp_2*rxc;
+
+  }
+  pub fn rotate_z(&mut self, radians: f32){
+    let (rxc, rxs) = (radians.cos(), radians.sin());
+
+    let tmp_0 = self.0[0];
+    let tmp_1 = self.0[1];
+    self.0[0] = tmp_0*rxc + tmp_1*rxs;
+    self.0[1] = tmp_1*rxc - tmp_0*rxs;
+
+    let tmp_0 = self.0[4];
+    let tmp_1 = self.0[5];
+    self.0[4] = tmp_0*rxc + tmp_1*rxs;
+    self.0[5] = tmp_1*rxc - tmp_0*rxs;
+
+    let tmp_0 = self.0[8];
+    let tmp_1 = self.0[9];
+    self.0[8] = tmp_0*rxc + tmp_1*rxs;
+    self.0[9] = tmp_1*rxc - tmp_0*rxs;
+
+    let tmp_0 = self.0[12];
+    let tmp_1 = self.0[13];
+    self.0[12] = tmp_0*rxc + tmp_1*rxs;
+    self.0[13] = tmp_1*rxc - tmp_0*rxs;
+
+  }
+  pub fn set_rotation(&mut self, rx: f32, ry: f32, rz: f32){
+    let (rxc, rxs) = (rx.cos(), rx.sin());
+    let (ryc, rys) = (ry.cos(), ry.sin());
+    let (rzc, rzs) = (rz.cos(), rz.sin());
+
+    self.0[0] =  ryc*rzc;
+    self.0[1] = -ryc*rzs;
+    self.0[2] =  rys;
+    self.0[3] =  0.0;
+
+    self.0[4] =  rxc*rys*rzc + rxc*rzs;
+    self.0[5] =  rxc*rzc - rxs*rys*rzs;
+    self.0[6] =  -rxs*ryc;
+    self.0[7] =  0.0;
+
+    self.0[8] =  rxs*rzs - rxc*rys*rzc;
+    self.0[9] =  rxc*rys*rzs + rxs*rzc;
+    self.0[10]=  rxc*ryc;
+    self.0[11]=  0.0;
+
+    self.0[12]= 0.0; 
+    self.0[13]= 0.0; 
+    self.0[14]= 0.0; 
+    self.0[15]= 1.0;
+  }
+  pub fn scale(&mut self, sx: f32, sy: f32, sz: f32){
+    self.0[0] = self.0[0] * sx;
+    self.0[1] = self.0[1] * sy;
+    self.0[2] = self.0[2] * sz;
+    self.0[3] = self.0[3];
+
+    self.0[4] = self.0[4] * sx;
+    self.0[5] = self.0[5] * sy;
+    self.0[6] = self.0[6] * sz;
+    self.0[7] = self.0[7];
+
+    self.0[8] = self.0[8] * sx;
+    self.0[9] = self.0[9] * sy;
+    self.0[10]= self.0[10] * sz;
+    self.0[11]= self.0[11];
+
+    self.0[12]= self.0[12] * sx;
+    self.0[13]= self.0[13] * sy;
+    self.0[14]= self.0[14] * sz;
+    self.0[15]= self.0[15];
+  }
+  pub fn scale_arr(&mut self, s: [f32; 3]){
+    self.scale(s[0], s[1], s[2])
+  }
+  pub fn set_scale(&mut self, sx: f32, sy: f32, sz: f32){
+    self.ident();
+    self.scale(sx, sy, sz);
+  }
+  pub fn set_scale_arr(&mut self, scale: [f32; 3]){
+    self.ident();
+    self.scale(scale[0], scale[1], scale[2]);
   }
   pub fn print(&self){
     let mut s = String::new();
@@ -133,204 +314,63 @@ impl Matrices {
       scale: [1.0, 1.0, 1.0],
     }
   }
-  pub fn calc_model_matrix(&self) -> Matrix {
-    let m_mat = &self.model_matrix;
-    let t_mat = &self.translation_matrix;
-    let r_mat = &self.rotation_matrix;
-    let s_mat = &self.scale_matrix;
-    let t = m_mat.mat_mul(t_mat);
-    let r = t.mat_mul(r_mat);
-    let s = r.mat_mul(s_mat);
-    Matrix(s.0)
+  pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>) {
+    let mut m_mat = parent.unwrap().clone();
+    m_mat.translate_arr(self.position);
+    m_mat.rotate_y(self.angle[1]);
+    m_mat.rotate_x(self.angle[0]);
+    m_mat.rotate_z(self.angle[2]);
+    m_mat.scale_arr(self.scale);
+    self.model_matrix = m_mat;
   }
   pub fn get_position(&self) -> [f32; 3] {
     self.position
   }
   pub fn set_position(&mut self, tx: f32, ty: f32, tz: f32){
     self.position = [tx, ty, tz];
-
-    self.translation_matrix.ident();
-    self.translation_matrix.0[3] = tx;
-    self.translation_matrix.0[7] = ty;
-    self.translation_matrix.0[11] = tz;
   }
   pub fn set_position_arr(&mut self, pos: [f32; 3]){
     self.position = pos; 
-
-    self.translation_matrix.ident();
-    self.translation_matrix.0[3] = pos[0];
-    self.translation_matrix.0[7] = pos[1];
-    self.translation_matrix.0[11] = pos[1];
+  }
+  pub fn translate(&mut self, tx: f32, ty: f32, tz: f32){
+    self.position[0] += tx;
+    self.position[1] += ty;
+    self.position[2] += tz;
   }
   pub fn get_rotation(&self) -> [f32; 3] {
       self.angle
   }
   pub fn set_rotation(&mut self, rx: f32, ry: f32, rz: f32){
     self.angle = [rx, ry, rz];
-
-    let (rxc, rxs) = (rx.cos(), rx.sin());
-    let (ryc, rys) = (ry.cos(), ry.sin());
-    let (rzc, rzs) = (rz.cos(), rz.sin());
-
-    self.rotation_matrix.0[0] =  ryc*rzc;
-    self.rotation_matrix.0[1] = -ryc*rzs;
-    self.rotation_matrix.0[2] =  rys;
-    self.rotation_matrix.0[3] =  0.0;
-
-    self.rotation_matrix.0[4] =  rxc*rys*rzc + rxc*rzs;
-    self.rotation_matrix.0[5] =  rxc*rzc - rxs*rys*rzs;
-    self.rotation_matrix.0[6] =  -rxs*ryc;
-    self.rotation_matrix.0[7] =  0.0;
-
-    self.rotation_matrix.0[8] =  rxs*rzs - rxc*rys*rzc;
-    self.rotation_matrix.0[9] =  rxc*rys*rzs + rxs*rzc;
-    self.rotation_matrix.0[10]=  rxc*ryc;
-    self.rotation_matrix.0[11]=  0.0;
-
-    self.rotation_matrix.0[12]= 0.0; 
-    self.rotation_matrix.0[13]= 0.0; 
-    self.rotation_matrix.0[14]= 0.0; 
-    self.rotation_matrix.0[15]= 1.0;
   }
   pub fn set_rotation_arr(&mut self, rotation: [f32; 3]){
     self.set_rotation(rotation[0], rotation[1], rotation[2]);
   }
   pub fn rotate_x(&mut self, radians: f32){
     self.angle[0] += radians; 
-
-    let (rxc, rxs) = (radians.cos(), radians.sin());
-
-    let tmp_1 = self.rotation_matrix.0[1];
-    let tmp_2 = self.rotation_matrix.0[2];
-    self.rotation_matrix.0[1] = tmp_1*rxc + tmp_2*rxs;
-    self.rotation_matrix.0[2] = tmp_2*rxc - tmp_1*rxs;
-
-    let tmp_1 = self.rotation_matrix.0[5];
-    let tmp_2 = self.rotation_matrix.0[6];
-    self.rotation_matrix.0[5] = tmp_1*rxc + tmp_2*rxs;
-    self.rotation_matrix.0[6] = tmp_2*rxc - tmp_1*rxs;
-
-    let tmp_1 = self.rotation_matrix.0[9];
-    let tmp_2 = self.rotation_matrix.0[10];
-    self.rotation_matrix.0[9] = tmp_1*rxc + tmp_2*rxs;
-    self.rotation_matrix.0[10]= tmp_2*rxc - tmp_1*rxs;
-
-    let tmp_1 = self.rotation_matrix.0[13];
-    let tmp_2 = self.rotation_matrix.0[14];
-    self.rotation_matrix.0[13]= tmp_1*rxc + tmp_2*rxs;
-    self.rotation_matrix.0[14]= tmp_2*rxc - tmp_1*rxs;
   }
   pub fn rotate_y(&mut self, radians: f32){
     self.angle[1] += radians; 
-
-    let (rxc, rxs) = (radians.cos(), radians.sin());
-
-    let tmp_0 = self.rotation_matrix.0[0];
-    let tmp_2 = self.rotation_matrix.0[2];
-    self.rotation_matrix.0[0] = tmp_0*rxc - tmp_2*rxs;
-    self.rotation_matrix.0[2] = tmp_0*rxs + tmp_2*rxc;
-
-    let tmp_0 = self.rotation_matrix.0[4];
-    let tmp_2 = self.rotation_matrix.0[6];
-    self.rotation_matrix.0[4] = tmp_0*rxc - tmp_2*rxs;
-    self.rotation_matrix.0[6] = tmp_0*rxs + tmp_2*rxc;
-
-    let tmp_0 = self.rotation_matrix.0[8];
-    let tmp_2 = self.rotation_matrix.0[10];
-    self.rotation_matrix.0[8]  = tmp_0*rxc - tmp_2*rxs;
-    self.rotation_matrix.0[10] = tmp_0*rxs + tmp_2*rxc;
-
-    let tmp_0 = self.rotation_matrix.0[12];
-    let tmp_2 = self.rotation_matrix.0[14];
-    self.rotation_matrix.0[12] = tmp_0*rxc - tmp_2*rxs;
-    self.rotation_matrix.0[14] = tmp_0*rxs + tmp_2*rxc;
-
   }
   pub fn rotate_z(&mut self, radians: f32){
     self.angle[2] += radians; 
-
-    let (rxc, rxs) = (radians.cos(), radians.sin());
-
-    let tmp_0 = self.rotation_matrix.0[0];
-    let tmp_1 = self.rotation_matrix.0[1];
-    self.rotation_matrix.0[0] = tmp_0*rxc + tmp_1*rxs;
-    self.rotation_matrix.0[1] = tmp_1*rxc - tmp_0*rxs;
-
-    let tmp_0 = self.rotation_matrix.0[4];
-    let tmp_1 = self.rotation_matrix.0[5];
-    self.rotation_matrix.0[4] = tmp_0*rxc + tmp_1*rxs;
-    self.rotation_matrix.0[5] = tmp_1*rxc - tmp_0*rxs;
-
-    let tmp_0 = self.rotation_matrix.0[8];
-    let tmp_1 = self.rotation_matrix.0[9];
-    self.rotation_matrix.0[8] = tmp_0*rxc + tmp_1*rxs;
-    self.rotation_matrix.0[9] = tmp_1*rxc - tmp_0*rxs;
-
-    let tmp_0 = self.rotation_matrix.0[12];
-    let tmp_1 = self.rotation_matrix.0[13];
-    self.rotation_matrix.0[12] = tmp_0*rxc + tmp_1*rxs;
-    self.rotation_matrix.0[13] = tmp_1*rxc - tmp_0*rxs;
-
   }
   pub fn get_scale(&self) -> [f32; 3] {
     self.scale
   }
   pub fn scale(&mut self, sx: f32, sy: f32, sz: f32){
-    self.scale = [sx, sy, sz];
-
-    self.scale_matrix.0[0] = self.scale_matrix.0[0] * sx;
-    self.scale_matrix.0[1] = self.scale_matrix.0[1] * sy;
-    self.scale_matrix.0[2] = self.scale_matrix.0[2] * sz;
-    self.scale_matrix.0[3] = self.scale_matrix.0[3];
-
-    self.scale_matrix.0[4] = self.scale_matrix.0[4] * sx;
-    self.scale_matrix.0[5] = self.scale_matrix.0[5] * sy;
-    self.scale_matrix.0[6] = self.scale_matrix.0[6] * sz;
-    self.scale_matrix.0[7] = self.scale_matrix.0[7];
-
-    self.scale_matrix.0[8] = self.scale_matrix.0[8] * sx;
-    self.scale_matrix.0[9] = self.scale_matrix.0[9] * sy;
-    self.scale_matrix.0[10]= self.scale_matrix.0[10] * sz;
-    self.scale_matrix.0[11]= self.scale_matrix.0[11];
-
-    self.scale_matrix.0[12]= self.scale_matrix.0[12] * sx;
-    self.scale_matrix.0[13]= self.scale_matrix.0[13] * sy;
-    self.scale_matrix.0[14]= self.scale_matrix.0[14] * sz;
-    self.scale_matrix.0[15]= self.scale_matrix.0[15];
+    self.scale[0] *= sx;
+    self.scale[1] *= sy;
+    self.scale[2] *= sz;
   }
   pub fn scale_arr(&mut self, scale: [f32; 3]){
-    self.scale = scale;
-    let (sx, sy, sz) = (scale[0], scale[1], scale[2]);
-
-    self.scale_matrix.0[0] = self.scale_matrix.0[0] * sx;
-    self.scale_matrix.0[1] = self.scale_matrix.0[1] * sy;
-    self.scale_matrix.0[2] = self.scale_matrix.0[2] * sz;
-    self.scale_matrix.0[3] = self.scale_matrix.0[3];
-
-    self.scale_matrix.0[4] = self.scale_matrix.0[4] * sx;
-    self.scale_matrix.0[5] = self.scale_matrix.0[5] * sy;
-    self.scale_matrix.0[6] = self.scale_matrix.0[6] * sz;
-    self.scale_matrix.0[7] = self.scale_matrix.0[7];
-
-    self.scale_matrix.0[8] = self.scale_matrix.0[8] * sx;
-    self.scale_matrix.0[9] = self.scale_matrix.0[9] * sy;
-    self.scale_matrix.0[10]= self.scale_matrix.0[10] * sz;
-    self.scale_matrix.0[11]= self.scale_matrix.0[11];
-
-    self.scale_matrix.0[12]= self.scale_matrix.0[12] * sx;
-    self.scale_matrix.0[13]= self.scale_matrix.0[13] * sy;
-    self.scale_matrix.0[14]= self.scale_matrix.0[14] * sz;
-    self.scale_matrix.0[15]= self.scale_matrix.0[15];
+    self.scale(scale[0], scale[1], scale[2]);
   }
   pub fn set_scale(&mut self, sx: f32, sy: f32, sz: f32){
     self.scale = [sx, sy, sz];
-    self.scale_matrix.ident();
-    self.scale_matrix.scale(sx, sy, sz);
   }
   pub fn set_scale_arr(&mut self, scale: [f32; 3]){
     self.scale = scale;
-    self.scale_matrix.ident();
-    self.scale_matrix.scale(scale[0], scale[1], scale[2]);
   }
 
 }

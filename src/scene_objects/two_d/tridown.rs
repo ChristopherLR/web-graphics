@@ -15,6 +15,7 @@ pub struct TriDown {
   vertex_buffer: WebGlBuffer, 
   index_buffer: WebGlBuffer,
   index_length: usize,
+  pub color: [f32; 4],
   pub matrices: Matrices,
   pub u_color: WebGlUniformLocation,
   u_transform: WebGlUniformLocation,
@@ -46,6 +47,7 @@ impl TriDown {
       index_length: indices.len(),
       program: program,
       matrices: Matrices::new(),
+      color: [0.0, 0.0, 0.0, 0.0]
     }
   }
 }
@@ -55,13 +57,26 @@ impl SceneObject for TriDown {
     "TriDown"
   }
 
+  fn get_model_matrix(&self) -> &Matrix {
+    &self.matrices.model_matrix
+  }
+
+  fn get_mut_model_matrix(&mut self) -> &Matrix {
+    &self.matrices.model_matrix
+  }
+
+  fn calc_model_matrix(&mut self, parent_matrix: Option<&Matrix>){
+    self.matrices.calc_model_matrix(parent_matrix);
+  }
+
   fn update_self(&mut self, dt: f32) {
     // self.matrices.rotate_x(0.01);
     self.matrices.rotate_y(0.01);
+    // log(&format!("{:?}", self.matrices.get_rotation()))
     // self.matrices.rotate_z(0.01);
   }
 
-  fn draw_self(&self, gl: Option<&GL>){
+  fn draw_self(&mut self, gl: Option<&GL>){
     let gl = gl.unwrap();
     gl.use_program(Some(&self.program));
     gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.vertex_buffer));
@@ -69,11 +84,11 @@ impl SceneObject for TriDown {
     gl.vertex_attrib_pointer_with_i32(0, 2, GL::FLOAT, false, 0, 0);
     gl.enable_vertex_attrib_array(0);
 
-    gl.uniform4f(Some(&self.u_color), 0.0, 0.5, 0.5, 1.0);
+    gl.uniform4f(Some(&self.u_color), self.color[0], self.color[1], self.color[2], self.color[3]);
 
-    let m_mat = self.matrices.calc_model_matrix();
+    // m_mat.print();
 
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &m_mat.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &self.matrices.model_matrix.0);
     gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
   }
 }
