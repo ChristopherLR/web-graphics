@@ -10,6 +10,7 @@ mod math;
 use wasm_bindgen::prelude::*;
 use scene_objects::{ SceneObject, Pivot, two_d::TriDown };
 use std::sync::{ Arc, Mutex };
+use math::matrix::Matrix;
 use web_sys::*;
 use chrono::prelude::*;
 use std::cell::RefCell;
@@ -30,6 +31,7 @@ pub struct WebClient{
     width: f32,
     height: f32,
     time: f64,
+    model_matrix: Matrix,
 }
 
 #[wasm_bindgen]
@@ -90,6 +92,7 @@ impl WebClient {
           height: height,
           gl: gl,
           time: 0.0,
+          model_matrix: Matrix::new(),
         }
     }
 
@@ -105,10 +108,7 @@ impl WebClient {
         // log(&format!("{}", time));
         let dt = self.time - old_time;
         ROOT.with(|root|{
-            let mut rot = root.borrow().matrices.get_rotation();
-            rot[2] += 0.00001;
-            root.borrow_mut().matrices.set_rotation_arr(rot);
-
+            root.borrow_mut().matrices.rotate_z(0.01);
             root.borrow_mut().update(dt as f32);
         });
         // log(&format!("{}", dt));
@@ -119,9 +119,10 @@ impl WebClient {
         let gl = self.gl.lock().unwrap();
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
         ROOT.with(|root|{
-            let mut rt = root.borrow_mut();
-            let mat = rt.matrices.model_matrix.clone();
-            rt.draw(Some(&gl), Some(&mat));
+            // let mut rt = root.borrow_mut();
+            // let mat = rt.matrices.model_matrix.ident();
+            // let mat = rt.matrices.model_matrix.clone();
+            root.borrow_mut().draw(Some(&gl), Some(&self.model_matrix));
         });
     }
 }

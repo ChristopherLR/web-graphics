@@ -260,6 +260,28 @@ impl Matrix {
   
     Matrix(matrix)
   }
+  pub fn set(&mut self, rhs: Option<&Matrix>){
+    let other = rhs.unwrap();
+    self.0[0] = other.0[0];
+    self.0[1] = other.0[1];
+    self.0[2] = other.0[2];
+    self.0[3] = other.0[3];
+
+    self.0[4] = other.0[4];
+    self.0[5] = other.0[5];
+    self.0[6] = other.0[6];
+    self.0[7] = other.0[7];
+
+    self.0[8] = other.0[8];
+    self.0[9] = other.0[9];
+    self.0[10]= other.0[10];
+    self.0[11]= other.0[11];
+
+    self.0[12]= other.0[12];
+    self.0[13]= other.0[13];
+    self.0[14]= other.0[14];
+    self.0[15]= other.0[15];
+  }
 }
 
 impl Mul for Matrix {
@@ -315,13 +337,12 @@ impl Matrices {
     }
   }
   pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>) {
-    let mut m_mat = parent.unwrap().clone();
-    m_mat.translate_arr(self.position);
-    m_mat.rotate_y(self.angle[1]);
-    m_mat.rotate_x(self.angle[0]);
-    m_mat.rotate_z(self.angle[2]);
-    m_mat.scale_arr(self.scale);
-    self.model_matrix = m_mat;
+    self.model_matrix.set(parent);
+    self.model_matrix.translate_arr(self.position);
+    self.model_matrix.rotate_y(self.angle[1]);
+    self.model_matrix.rotate_x(self.angle[0]);
+    self.model_matrix.rotate_z(self.angle[2]);
+    self.model_matrix.scale_arr(self.scale);
   }
   pub fn get_position(&self) -> [f32; 3] {
     self.position

@@ -86,8 +86,6 @@ impl SceneObject for TriDown {
 
     gl.uniform4f(Some(&self.u_color), self.color[0], self.color[1], self.color[2], self.color[3]);
 
-    // m_mat.print();
-
     gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &self.matrices.model_matrix.0);
     gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
   }
