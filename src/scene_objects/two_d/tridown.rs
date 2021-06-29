@@ -15,8 +15,8 @@ pub struct TriDown {
   vertex_buffer: WebGlBuffer, 
   index_buffer: WebGlBuffer,
   index_length: usize,
-  matrices: Matrices,
-  u_color: WebGlUniformLocation,
+  pub matrices: Matrices,
+  pub u_color: WebGlUniformLocation,
   u_transform: WebGlUniformLocation,
 }
 

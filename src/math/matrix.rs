@@ -149,6 +149,7 @@ impl Matrices {
   pub fn set_position(&mut self, tx: f32, ty: f32, tz: f32){
     self.position = [tx, ty, tz];
 
+    self.translation_matrix.ident();
     self.translation_matrix.0[3] = tx;
     self.translation_matrix.0[7] = ty;
     self.translation_matrix.0[11] = tz;
@@ -156,6 +157,7 @@ impl Matrices {
   pub fn set_position_arr(&mut self, pos: [f32; 3]){
     self.position = pos; 
 
+    self.translation_matrix.ident();
     self.translation_matrix.0[3] = pos[0];
     self.translation_matrix.0[7] = pos[1];
     self.translation_matrix.0[11] = pos[1];
@@ -273,6 +275,64 @@ impl Matrices {
   pub fn get_scale(&self) -> [f32; 3] {
     self.scale
   }
+  pub fn scale(&mut self, sx: f32, sy: f32, sz: f32){
+    self.scale = [sx, sy, sz];
+
+    self.scale_matrix.0[0] = self.scale_matrix.0[0] * sx;
+    self.scale_matrix.0[1] = self.scale_matrix.0[1] * sy;
+    self.scale_matrix.0[2] = self.scale_matrix.0[2] * sz;
+    self.scale_matrix.0[3] = self.scale_matrix.0[3];
+
+    self.scale_matrix.0[4] = self.scale_matrix.0[4] * sx;
+    self.scale_matrix.0[5] = self.scale_matrix.0[5] * sy;
+    self.scale_matrix.0[6] = self.scale_matrix.0[6] * sz;
+    self.scale_matrix.0[7] = self.scale_matrix.0[7];
+
+    self.scale_matrix.0[8] = self.scale_matrix.0[8] * sx;
+    self.scale_matrix.0[9] = self.scale_matrix.0[9] * sy;
+    self.scale_matrix.0[10]= self.scale_matrix.0[10] * sz;
+    self.scale_matrix.0[11]= self.scale_matrix.0[11];
+
+    self.scale_matrix.0[12]= self.scale_matrix.0[12] * sx;
+    self.scale_matrix.0[13]= self.scale_matrix.0[13] * sy;
+    self.scale_matrix.0[14]= self.scale_matrix.0[14] * sz;
+    self.scale_matrix.0[15]= self.scale_matrix.0[15];
+  }
+  pub fn scale_arr(&mut self, scale: [f32; 3]){
+    self.scale = scale;
+    let (sx, sy, sz) = (scale[0], scale[1], scale[2]);
+
+    self.scale_matrix.0[0] = self.scale_matrix.0[0] * sx;
+    self.scale_matrix.0[1] = self.scale_matrix.0[1] * sy;
+    self.scale_matrix.0[2] = self.scale_matrix.0[2] * sz;
+    self.scale_matrix.0[3] = self.scale_matrix.0[3];
+
+    self.scale_matrix.0[4] = self.scale_matrix.0[4] * sx;
+    self.scale_matrix.0[5] = self.scale_matrix.0[5] * sy;
+    self.scale_matrix.0[6] = self.scale_matrix.0[6] * sz;
+    self.scale_matrix.0[7] = self.scale_matrix.0[7];
+
+    self.scale_matrix.0[8] = self.scale_matrix.0[8] * sx;
+    self.scale_matrix.0[9] = self.scale_matrix.0[9] * sy;
+    self.scale_matrix.0[10]= self.scale_matrix.0[10] * sz;
+    self.scale_matrix.0[11]= self.scale_matrix.0[11];
+
+    self.scale_matrix.0[12]= self.scale_matrix.0[12] * sx;
+    self.scale_matrix.0[13]= self.scale_matrix.0[13] * sy;
+    self.scale_matrix.0[14]= self.scale_matrix.0[14] * sz;
+    self.scale_matrix.0[15]= self.scale_matrix.0[15];
+  }
+  pub fn set_scale(&mut self, sx: f32, sy: f32, sz: f32){
+    self.scale = [sx, sy, sz];
+    self.scale_matrix.ident();
+    self.scale_matrix.scale(sx, sy, sz);
+  }
+  pub fn set_scale_arr(&mut self, scale: [f32; 3]){
+    self.scale = scale;
+    self.scale_matrix.ident();
+    self.scale_matrix.scale(scale[0], scale[1], scale[2]);
+  }
+
 }
 
 pub fn translation_matrix(tx: f32, ty: f32, tz: f32) -> [f32; 16] {

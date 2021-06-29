@@ -1,7 +1,5 @@
 extern crate wasm_bindgen;
 extern crate wee_alloc;
-#[macro_use]
-extern crate lazy_static;
 mod gl_setup;
 mod programs;
 mod helpers;
@@ -48,9 +46,23 @@ impl WebClient {
 
         console_error_panic_hook::set_once();
         let gl = gl_setup::init_webgl_context().unwrap();
+        let mut tri_1 = TriDown::new(&gl);
+        // tri_1.matrices.rotate_z(std::f32::consts::PI/4.0);
+        tri_1.matrices.set_scale(0.5, 0.5, 1.0);
+        let mut tri_2 = TriDown::new(&gl);
+        tri_2.matrices.rotate_z(std::f32::consts::PI/2.0);
+        tri_2.matrices.set_scale(0.5, 0.5, 1.0);
+        let mut tri_3 = TriDown::new(&gl);
+        tri_3.matrices.rotate_z(std::f32::consts::PI);
+        tri_3.matrices.set_scale(0.5, 0.5, 1.0);
+        let mut tri_4 = TriDown::new(&gl);
+        tri_4.matrices.rotate_z(3.0*std::f32::consts::PI/2.0);
+        tri_4.matrices.set_scale(0.5, 0.5, 1.0);
         ROOT.with(|root|{
-            root.borrow_mut().add_child(Box::new(Color2D::new(&gl)));
-            root.borrow_mut().add_child(Box::new(TriDown::new(&gl)));
+            root.borrow_mut().add_child(Box::new(tri_1));
+            root.borrow_mut().add_child(Box::new(tri_2));
+            root.borrow_mut().add_child(Box::new(tri_3));
+            root.borrow_mut().add_child(Box::new(tri_4));
         });
         let gl = Mutex::new(Arc::new(gl));
 
