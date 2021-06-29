@@ -1,5 +1,7 @@
 extern crate wasm_bindgen;
 extern crate wee_alloc;
+#[macro_use]
+extern crate lazy_static;
 mod gl_setup;
 mod programs;
 mod helpers;
@@ -13,11 +15,16 @@ use std::sync::{ Arc, Mutex };
 use programs::{ Color2D };
 use web_sys::*;
 use chrono::prelude::*;
+use std::cell::RefCell;
 use web_sys::WebGl2RenderingContext as GL;
 
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
+
+thread_local!{
+    static ROOT: RefCell<Pivot> = RefCell::new(Pivot::new());
+}
 
 #[wasm_bindgen]
 pub struct WebClient{
@@ -25,7 +32,6 @@ pub struct WebClient{
     width: f32,
     height: f32,
     time: f64,
-    root: Pivot,
 }
 
 #[wasm_bindgen]
@@ -42,16 +48,16 @@ impl WebClient {
 
         console_error_panic_hook::set_once();
         let gl = gl_setup::init_webgl_context().unwrap();
-        let mut root = Pivot::new();
-        root.add_child(Box::new(Color2D::new(&gl)));
-        root.add_child(Box::new(TriDown::new(&gl)));
+        ROOT.with(|root|{
+            root.borrow_mut().add_child(Box::new(Color2D::new(&gl)));
+            root.borrow_mut().add_child(Box::new(TriDown::new(&gl)));
+        });
         let gl = Mutex::new(Arc::new(gl));
 
         Self {
           width: width,
           height: height,
           gl: gl,
-          root: root,
           time: 0.0,
         }
     }
@@ -67,7 +73,9 @@ impl WebClient {
         self.time = time as f64;
         // log(&format!("{}", time));
         let dt = self.time - old_time;
-        self.root.update(dt as f32);
+        ROOT.with(|root|{
+            root.borrow_mut().update(dt as f32);
+        });
         // log(&format!("{}", dt));
         Ok(())
     }
@@ -75,6 +83,8 @@ impl WebClient {
     pub fn render(&mut self){
         let gl = self.gl.lock().unwrap();
         gl.clear(GL::COLOR_BUFFER_BIT | GL::DEPTH_BUFFER_BIT);
-        self.root.draw(Some(&gl));
+        ROOT.with(|root|{
+            root.borrow_mut().draw(Some(&gl));
+        });
     }
 }
