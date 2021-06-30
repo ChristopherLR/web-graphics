@@ -6,6 +6,9 @@ mod helpers;
 mod shaders;
 mod scene_objects;
 mod math;
+mod app_state;
+#[macro_use]
+extern crate lazy_static;
 
 use wasm_bindgen::prelude::*;
 use scene_objects::{ SceneObject, Pivot, two_d::TriDown };

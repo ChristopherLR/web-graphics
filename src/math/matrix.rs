@@ -316,9 +316,6 @@ impl Mul for Matrix {
 
 pub struct Matrices {
   pub model_matrix: Matrix,
-  pub translation_matrix: Matrix,
-  pub rotation_matrix: Matrix,
-  pub scale_matrix: Matrix,
   position: [f32; 3],
   angle: [f32; 3],
   scale: [f32; 3],
@@ -328,9 +325,6 @@ impl Matrices {
   pub fn new() -> Self {
     Matrices {
       model_matrix: Matrix::new(),
-      translation_matrix: Matrix::new(),
-      scale_matrix: Matrix::new(),
-      rotation_matrix: Matrix::new(),
       position: [0.0, 0.0, 0.0],
       angle: [0.0, 0.0, 0.0],
       scale: [1.0, 1.0, 1.0],
