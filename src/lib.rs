@@ -12,7 +12,7 @@ mod output;
 extern crate lazy_static;
 
 use wasm_bindgen::prelude::*;
-use scene_objects::{ SceneObject, Pivot, two_d::TriDown };
+use scene_objects::{ SceneObject, Pivot, two_d::TriDown, three_d::Cube };
 use std::sync::{ Arc, Mutex };
 use math::matrix::Matrix;
 use web_sys::*;
@@ -68,6 +68,10 @@ impl WebClient {
             output.borrow_mut().attach_infobox(infobox);
         });
 
+        let mut cube = Cube::new(&gl);
+        cube.matrices.set_scale(0.25, 0.25, 0.25);
+        cube.matrices.translate(0.0, 0.0, 0.5);
+
         let mut piv1 = Pivot::new();
         let mut tri_1 = TriDown::new(&gl);
         tri_1.color = [1.0, 0.0, 0.0, 1.0];
@@ -100,6 +104,7 @@ impl WebClient {
         piv4.add_child(Box::new(tri_4));
 
         ROOT.with(|root|{
+            root.borrow_mut().add_child(Box::new(cube));
             root.borrow_mut().add_child(Box::new(piv1));
             root.borrow_mut().add_child(Box::new(piv2));
             root.borrow_mut().add_child(Box::new(piv3));
