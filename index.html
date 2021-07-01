@@ -2,8 +2,23 @@
 <html>
 	<head>
 		<link rel="icon" href="data:;base64,iVBORw0KGgoAAAANSUhEUg=" />
+		<style>
+			#infobox {
+				position: absolute;
+				bottom: 0;
+				right: 0;
+				width: 20px;
+				height: 20px;
+				background: white;
+				border-radius: 50%;
+				display: flex;
+				justify-content: center;
+				align-items: center;
+			}
+		</style>
 	</head>
 	<body style="background-color: black; margin: 0; overflow: hidden;">
+		<div id="infobox"></div>
 		<canvas id="rustCanvas"></canvas>
 	</body>
 </html>

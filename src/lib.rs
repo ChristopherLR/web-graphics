@@ -6,7 +6,8 @@ mod helpers;
 mod shaders;
 mod scene_objects;
 mod math;
-mod app_state;
+mod input;
+mod output;
 #[macro_use]
 extern crate lazy_static;
 
@@ -19,23 +20,12 @@ use chrono::prelude::*;
 use std::cell::RefCell;
 use std::f32::consts::PI;
 use web_sys::WebGl2RenderingContext as GL;
+use input::*;
+use output::*;
 
 // Use `wee_alloc` as the global allocator.
 #[global_allocator]
 static ALLOC: wee_alloc::WeeAlloc = wee_alloc::WeeAlloc::INIT;
-
-thread_local!{
-    static ROOT: RefCell<Pivot> = RefCell::new(Pivot::new());
-}
-
-#[wasm_bindgen]
-pub struct WebClient{
-    gl: Mutex<Arc<GL>>,
-    width: f32,
-    height: f32,
-    time: f64,
-    model_matrix: Matrix,
-}
 
 #[wasm_bindgen]
 extern {
@@ -43,14 +33,41 @@ extern {
     fn log(s: &str);
 }
 
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
+thread_local!{
+    static ROOT: RefCell<Pivot> = RefCell::new(Pivot::new());
+    static OUTPUT: RefCell<OutputState> = RefCell::new(OutputState::new());
+}
+
+lazy_static! {
+  static ref INPUT: Mutex<InputState> = Mutex::new(InputState::new());
+}
+
+#[wasm_bindgen]
+pub struct WebClient{
+    gl: Mutex<Arc<GL>>,
+    time: f64,
+    model_matrix: Matrix,
+}
+
 #[wasm_bindgen]
 impl WebClient {
     #[wasm_bindgen(constructor)]
     pub fn new(height: f32, width: f32) -> Self {
-        log("Creating Client");
+        console_log!("Creating Client");
 
         console_error_panic_hook::set_once();
-        let gl = gl_setup::init_webgl_context().unwrap();
+        let (gl, infobox) = gl_setup::init_webgl_context().unwrap();
+
+        INPUT.lock().unwrap().set_window_size(width, height);
+
+        OUTPUT.with(|output|{
+            output.borrow_mut().attach_infobox(infobox);
+        });
+
         let mut piv1 = Pivot::new();
         let mut tri_1 = TriDown::new(&gl);
         tri_1.color = [1.0, 0.0, 0.0, 1.0];
@@ -91,30 +108,33 @@ impl WebClient {
         let gl = Mutex::new(Arc::new(gl));
 
         Self {
-          width: width,
-          height: height,
           gl: gl,
           time: 0.0,
           model_matrix: Matrix::new(),
         }
     }
 
-    pub fn update_size(&mut self, height: f32, width: f32) {
-        self.width = width;
-        self.height = height;
+    pub fn update_size(&self, height: f32, width: f32) {
+        INPUT.lock().unwrap().set_window_size(width, height);
     }
 
     pub fn update(&mut self, time: f64) -> Result<(), JsValue> {
+        let (d, x, y) = INPUT.lock().unwrap().mouse;
+        let rot = match d {
+            true => 0.01,
+            false => -0.01,
+        };
         let old_time : f64 = self.time;
-        // log(&format!("{}", old_time));
         self.time = time as f64;
-        // log(&format!("{}", time));
         let dt = self.time - old_time;
+        OUTPUT.with(|output|{
+            output.borrow_mut().update_fps(((1.0 / dt as f32) * 1000.0).round());
+        });
         ROOT.with(|root|{
-            root.borrow_mut().matrices.rotate_z(0.01);
+            // root.borrow_mut().matrices.rotate_z(rot);
+            // root.borrow_mut().matrices.set_position(x, y, 0.0);
             root.borrow_mut().update(dt as f32);
         });
-        // log(&format!("{}", dt));
         Ok(())
     }
 

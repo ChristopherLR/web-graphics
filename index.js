@@ -34,7 +34,8 @@ rust.then((m) => {
     }
   }, true)
 
-  const FPS_THROTTLE = 1000.0 / 30.0 // millis / frames
+  const FRAME_RATE = 60.0
+  const FRAME_TIME = (1.0 / FRAME_RATE)*1000.0 // millis / frames
   let lastDrawTime = -1
   let elapsedTime = 0;
   let currTime = Date.now();
@@ -43,7 +44,7 @@ rust.then((m) => {
     window.requestAnimationFrame(render)
 
     currTime = Date.now()
-    if (currTime >= lastDrawTime + FPS_THROTTLE) {
+    if (currTime - lastDrawTime >= FRAME_TIME) {
       elapsedTime = currTime - lastDrawTime;
       lastDrawTime = currTime
       
