@@ -15,7 +15,7 @@ macro_rules! console_log {
   ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 
-pub struct Cube {
+pub struct WireCube {
   program: WebGlProgram,
   vertex_length: usize,
   vertex_buffer: WebGlBuffer, 
@@ -30,34 +30,49 @@ pub struct Cube {
   gl: GL,
 }
 
-impl Cube {
+impl WireCube {
   pub fn new(gl: &GL) -> Self {
     let program = link_program(gl, color_3d_vert::SHADER, color_3d_frag::SHADER).unwrap();
 
     let vertices: [f32; 24] = [
-      -1.,  1.,  1., // BTL 0
-      -1., -1.,  1., // BBL 1
-       1.,  1.,  1., // BTR 2
-       1., -1.,  1., // BBR 3
-      -1.,  1., -1., // FTL 4
-      -1., -1., -1., // FBL 5
-       1.,  1., -1., // FTR 6
-       1., -1., -1., // FBR 7
+       1.,  1.,  1., 
+      -1.,  1.,  1., 
+      -1., -1.,  1., 
+       1., -1.,  1., 
+       1., -1., -1., 
+      -1., -1., -1., 
+      -1.,  1., -1., 
+       1.,  1., -1., 
     ];
 
-    let indices: [u16; 36] = [
-      5, 6, 4, // Front Top
-      5, 7, 6, // Front Bottom
-      4, 2, 0, // Top Top
-      4, 6, 2, // Top bottom
-      3, 1, 0, // Back Bottom
-      0, 2, 3, // Back Top
-      1, 3, 7, // Bottom Back
-      1, 7, 5, // Bottom Front
-      1, 5, 0, // Left bottom
-      0, 5, 4, // Left Top
-      3, 6, 7, // Right Bottom
-      3, 6, 2, // Right Top
+    let indices: [u32; 36] = [
+			// front
+			0, 1,
+			1, 2,
+			2, 3,
+			3, 0,
+			0, 2,
+			
+			// back
+			4, 5,
+			5, 6,
+			6, 7,
+			7, 4,
+			4, 6,
+			
+			// top
+			0, 7,
+			6, 1,
+			6, 0,
+			
+			// bottom 
+			2, 5,
+			4, 3,
+			4, 2,
+			
+			// left
+			0, 4,
+			6, 2,
     ];
 
     let vertex_buffer = create_buffer(gl, &vertices, GL::ARRAY_BUFFER);
@@ -80,7 +95,7 @@ impl Cube {
   }
 }
 
-impl SceneObject for Cube {
+impl SceneObject for WireCube {
   fn name(&self) -> &str {
     "Cube"
   }
@@ -99,7 +114,7 @@ impl SceneObject for Cube {
 
   fn update_self(&mut self, dt: f32, input: &InputState) {
     // self.matrices.rotate_x(0.01);
-    // self.matrices.rotate_y(0.01);
+    self.matrices.rotate_y(0.01);
     // self.matrices.rotate_z(0.01);
   }
 
@@ -108,9 +123,8 @@ impl SceneObject for Cube {
     gl.use_program(Some(&self.program));
     gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.vertex_buffer));
     gl.bind_buffer(GL::ELEMENT_ARRAY_BUFFER, Some(&self.index_buffer));
-    let location = gl.get_attrib_location(&self.program, &"a_position");
     // Position attrib location, size, type, normalise, stride, offset
-    gl.vertex_attrib_pointer_with_i32(location as u32, 3, GL::FLOAT, false, 0, 0);
+    gl.vertex_attrib_pointer_with_i32(0, 3, GL::FLOAT, false, 0, 0);
     gl.enable_vertex_attrib_array(0);
 
     // gl.uniform4f(Some(&self.u_color), self.color[0], self.color[1], self.color[2], self.color[3]);
@@ -120,22 +134,13 @@ impl SceneObject for Cube {
     // view.ident();
     // proj.ident();
     // self.matrices.model_matrix.print();
-    // view.print();
-    // proj.print();
-    // console_log!("{:?}", proj);
+    //view.print();
 
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &self.matrices.model_matrix.as_slice());
+    let model = self.matrices.model_matrix.as_slice();
     gl.uniform_matrix4fv_with_f32_array(Some(&self.u_view), false, &view.as_slice());
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &model);
     gl.uniform_matrix4fv_with_f32_array(Some(&self.u_proj), false, &proj.as_slice());
 
-    gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
-  }
-}
-
-impl Drop for Cube {
-  fn drop(&mut self) {
-      console_log!("drop");
-      self.gl.delete_buffer(Some(&self.vertex_buffer));
-      self.gl.delete_buffer(Some(&self.index_buffer));
+    gl.draw_elements_with_i32(GL::LINES, self.index_length as i32, GL::UNSIGNED_INT, 0);
   }
 }

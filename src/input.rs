@@ -56,4 +56,8 @@ impl InputState {
     self.aspect_ratio = width / height;
   }
 
+  pub fn get_key_pressed(&self) -> (bool, u32) {
+    self.key_pressed
+  }
+
 }

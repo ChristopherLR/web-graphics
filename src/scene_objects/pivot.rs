@@ -1,6 +1,7 @@
 use super::scene_object::SceneObject;
 use crate::math::matrix::{ Matrix, Matrices};
 use web_sys::WebGl2RenderingContext as GL;
+use crate::input::InputState;
 
 pub struct Pivot {
   children: Vec<Box<dyn SceneObject>>,
@@ -36,7 +37,7 @@ impl SceneObject for Pivot {
     self.matrices.calc_model_matrix(parent_matrix)
   }
 
-  fn update_self(&mut self, dt: f32){
+  fn update_self(&mut self, dt: f32, input: &InputState){
   }
 
   fn mut_children(&mut self) -> Option<&mut Vec<Box<dyn SceneObject>>> {

@@ -118,6 +118,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "nalgebra-glm"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "170915b0416369385f0b7951de22326f6c58c2ea4e321092812632fe8f6ae9bd"
+dependencies = [
+ "approx",
+ "nalgebra",
+ "num-traits",
+ "simba",
+]
+
+[[package]]
 name = "nalgebra-macros"
 version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -312,6 +324,7 @@ dependencies = [
  "js-sys",
  "lazy_static",
  "nalgebra",
+ "nalgebra-glm",
  "wasm-bindgen",
  "web-sys",
  "wee_alloc",

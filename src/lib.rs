@@ -5,14 +5,18 @@ mod programs;
 mod helpers;
 mod shaders;
 mod scene_objects;
-mod math;
+pub mod math;
 mod input;
+mod cameras;
 mod output;
 #[macro_use]
 extern crate lazy_static;
+extern crate nalgebra as na;
+extern crate nalgebra_glm as glm;
 
 use wasm_bindgen::prelude::*;
-use scene_objects::{ SceneObject, Pivot, two_d::TriDown, three_d::Cube };
+use scene_objects::{ SceneObject, Pivot, two_d::TriDown, three_d::{Cube, WireCube, Grid }};
+use cameras::PerspectiveCamera;
 use std::sync::{ Arc, Mutex };
 use math::matrix::Matrix;
 use web_sys::*;
@@ -51,6 +55,7 @@ pub struct WebClient{
     gl: Mutex<Arc<GL>>,
     time: f64,
     model_matrix: Matrix,
+    camera: PerspectiveCamera,
 }
 
 #[wasm_bindgen]
@@ -68,54 +73,72 @@ impl WebClient {
             output.borrow_mut().attach_infobox(infobox);
         });
 
+        let mut camera = PerspectiveCamera::new(0.0, PI/3.0, 1.0, 0.1, 10.0);
+        camera.matrices.translate(0.0, 0.0, -1.0);
+        // camera.matrices.rotate_x(PI/2.0);
+        // camera.calc_model_matrix(None);
+
+        let mut wire_cube = WireCube::new(&gl);
+        wire_cube.matrices.set_scale(0.1, 0.1, 0.1);
+        wire_cube.matrices.translate(0.0, 0.0, 0.0);
+
         let mut cube = Cube::new(&gl);
         cube.matrices.set_scale(0.25, 0.25, 0.25);
-        cube.matrices.translate(0.0, 0.0, 0.5);
+        cube.matrices.translate(0.0, 0.0, 1.0);
+
+        let mut grid = Grid::new(&gl);
+        grid.matrices.set_scale(0.25, 0.25, 0.25);
+        grid.matrices.translate(0.0, -1.0, 0.0);
+        grid.matrices.rotate_x(PI/8.0);
 
         let mut piv1 = Pivot::new();
         let mut tri_1 = TriDown::new(&gl);
         tri_1.color = [1.0, 0.0, 0.0, 1.0];
-        tri_1.matrices.translate(0.0, 0.5, 0.0);
+        tri_1.matrices.rotate_z(PI/2.0);
+        tri_1.matrices.translate(0.5, 0.0, 0.0);
         tri_1.matrices.set_scale(0.5, 0.5, 1.0);
-        piv1.add_child(Box::new(tri_1));
+        // piv1.add_child(Box::new(tri_1));
 
         let mut piv2 = Pivot::new();
-        piv2.matrices.rotate_z(PI/2.0);
         let mut tri_2 = TriDown::new(&gl);
         tri_2.color = [0.0, 1.0, 0.0, 1.0];
-        tri_2.matrices.translate(0.0, 0.5, 0.0);
+        tri_2.matrices.rotate_z(PI);
+        tri_2.matrices.translate(0.0, -0.5, 0.0);
         tri_2.matrices.set_scale(0.5, 0.5, 1.0);
-        piv2.add_child(Box::new(tri_2));
+        // piv2.add_child(Box::new(tri_2));
 
         let mut piv3 = Pivot::new();
-        piv3.matrices.rotate_z(PI);
         let mut tri_3 = TriDown::new(&gl);
         tri_3.color = [0.0, 0.0, 1.0, 1.0];
-        tri_3.matrices.translate(0.0, 0.5, 0.0);
+        tri_3.matrices.rotate_z(-PI/2.0);
+        tri_3.matrices.translate(-0.5, 0.0, 0.0);
         tri_3.matrices.set_scale(0.5, 0.5, 1.0);
-        piv3.add_child(Box::new(tri_3));
+        // piv3.add_child(Box::new(tri_3));
 
         let mut piv4 = Pivot::new();
-        piv4.matrices.rotate_z(1.5*PI);
+        // piv4.matrices.rotate_z(1.5*PI);
         let mut tri_4 = TriDown::new(&gl);
         tri_4.color = [1.0, 1.0, 1.0, 1.0];
         tri_4.matrices.translate(0.0, 0.5, 0.0);
         tri_4.matrices.set_scale(0.5, 0.5, 1.0);
-        piv4.add_child(Box::new(tri_4));
+        // piv4.add_child(Box::new(tri_4));
 
         ROOT.with(|root|{
             root.borrow_mut().add_child(Box::new(cube));
-            root.borrow_mut().add_child(Box::new(piv1));
-            root.borrow_mut().add_child(Box::new(piv2));
-            root.borrow_mut().add_child(Box::new(piv3));
-            root.borrow_mut().add_child(Box::new(piv4));
+            root.borrow_mut().add_child(Box::new(wire_cube));
+            root.borrow_mut().add_child(Box::new(grid));
+            root.borrow_mut().add_child(Box::new(tri_1));
+            root.borrow_mut().add_child(Box::new(tri_2));
+            root.borrow_mut().add_child(Box::new(tri_3));
+            root.borrow_mut().add_child(Box::new(tri_4));
         });
         let gl = Mutex::new(Arc::new(gl));
 
         Self {
           gl: gl,
           time: 0.0,
-          model_matrix: Matrix::new(),
+          model_matrix: Matrix::identity(),
+          camera: camera
         }
     }
 
@@ -131,14 +154,22 @@ impl WebClient {
         };
         let old_time : f64 = self.time;
         self.time = time as f64;
-        let dt = self.time - old_time;
+        let dt = (self.time - old_time) as f32;
+
+        self.camera.update(dt, &INPUT.lock().unwrap());
+        self.camera.matrices.calc_model_matrix(None);
+        // self.camera.matrices.model_matrix.ident();
+        // self.camera.matrices.model_matrix.rotate_y(self.camera.matrices.get_rotation()[0]);
+        // self.camera.matrices.model_matrix.rotate_x(self.camera.matrices.get_rotation()[1]);
+        // self.camera.matrices.model_matrix.translate_arr(self.camera.matrices.get_position());
+
         OUTPUT.with(|output|{
-            output.borrow_mut().update_fps(((1.0 / dt as f32) * 1000.0).round());
+            output.borrow_mut().update_fps(((1.0/dt) * 1000.0).round());
         });
         ROOT.with(|root|{
             // root.borrow_mut().matrices.rotate_z(rot);
             // root.borrow_mut().matrices.set_position(x, y, 0.0);
-            root.borrow_mut().update(dt as f32);
+            root.borrow_mut().update(dt, &INPUT.lock().unwrap());
         });
         Ok(())
     }
@@ -150,7 +181,7 @@ impl WebClient {
             // let mut rt = root.borrow_mut();
             // let mat = rt.matrices.model_matrix.ident();
             // let mat = rt.matrices.model_matrix.clone();
-            root.borrow_mut().draw(Some(&gl), Some(&self.model_matrix));
+            root.borrow_mut().draw(Some(&gl), None, &self.camera);
         });
     }
 }

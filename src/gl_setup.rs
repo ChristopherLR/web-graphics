@@ -50,11 +50,14 @@ pub fn init_webgl_context() -> Result<(WebGl2RenderingContext, Element), JsValue
   attach_handler("keydown", &window, &key_down_handler)?;
   attach_handler("keyup", &window, &key_up_handler)?;
 
-  gl.enable(GL::BLEND);
-  gl.blend_func(GL::SRC_ALPHA, GL::ONE_MINUS_SRC_ALPHA);
+  // gl.enable(GL::CULL_FACE);
+  // gl.cull_face(GL::BACK);
+  // gl.front_face(GL::CCW);
+
   gl.enable(GL::DEPTH_TEST);
+  gl.depth_func(GL::LEQUAL);
+
   gl.clear_color(0.0, 0.0, 0.0, 1.0);
-  gl.clear_depth(1.0);
 
   Ok((gl, infobox))
 }

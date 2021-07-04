@@ -3,11 +3,18 @@ use web_sys::WebGl2RenderingContext as GL;
 use web_sys::*;
 use js_sys::WebAssembly;
 use crate::helpers::*;
+use crate::input::InputState;
 use crate::shaders::{ color_2d_frag, color_2d_vert };
 use crate::math::matrix::*;
 use crate::scene_objects::SceneObject;
+use crate::cameras::PerspectiveCamera;
 use crate::log;
 use std::mem::size_of;
+
+macro_rules! console_log {
+    ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
+}
+
 
 pub struct TriDown {
   program: WebGlProgram,
@@ -69,14 +76,14 @@ impl SceneObject for TriDown {
     self.matrices.calc_model_matrix(parent_matrix);
   }
 
-  fn update_self(&mut self, dt: f32) {
+  fn update_self(&mut self, dt: f32, input: &InputState) {
     // self.matrices.rotate_x(0.01);
     self.matrices.rotate_y(0.01);
     // log(&format!("{:?}", self.matrices.get_rotation()))
     // self.matrices.rotate_z(0.01);
   }
 
-  fn draw_self(&mut self, gl: Option<&GL>){
+  fn draw_self(&mut self, gl: Option<&GL>, camera: &PerspectiveCamera){
     let gl = gl.unwrap();
     gl.use_program(Some(&self.program));
     gl.bind_buffer(GL::ARRAY_BUFFER, Some(&self.vertex_buffer));
@@ -87,7 +94,8 @@ impl SceneObject for TriDown {
 
     gl.uniform4f(Some(&self.u_color), self.color[0], self.color[1], self.color[2], self.color[3]);
 
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &self.matrices.model_matrix.0);
+    let model = self.matrices.model_matrix.as_slice();
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_transform), false, &model);
     gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
   }
 }
