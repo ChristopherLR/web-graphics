@@ -116,6 +116,7 @@ impl SceneObject for Cube {
     // gl.uniform4f(Some(&self.u_color), self.color[0], self.color[1], self.color[2], self.color[3]);
 
     let mut view = camera.get_view_matrix();
+    // let mut view = Matrix::new();
     let mut proj = camera.get_perspective_matrix();
     // view.ident();
     // proj.ident();
@@ -123,10 +124,14 @@ impl SceneObject for Cube {
     // view.print();
     // proj.print();
     // console_log!("{:?}", proj);
+    // console_log!("{:?}", &self.matrices.model_matrix.as_slice());
+    // print_matrix(self.matrices.model_matrix.as_slice());
+    // print_matrix(&view.as_slice());
+    // print_matrix(&proj.as_slice());
 
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &self.matrices.model_matrix.as_slice());
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_view), false, &view.as_slice());
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_proj), false, &proj.as_slice());
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &self.matrices.model_matrix.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_view), false, &view.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_proj), false, &proj.0);
 
     gl.draw_elements_with_i32(GL::TRIANGLES, self.index_length as i32, GL::UNSIGNED_SHORT, 0)
   }

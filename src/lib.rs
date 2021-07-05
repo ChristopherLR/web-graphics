@@ -125,19 +125,19 @@ impl WebClient {
 
         ROOT.with(|root|{
             root.borrow_mut().add_child(Box::new(cube));
-            root.borrow_mut().add_child(Box::new(wire_cube));
-            root.borrow_mut().add_child(Box::new(grid));
-            root.borrow_mut().add_child(Box::new(tri_1));
-            root.borrow_mut().add_child(Box::new(tri_2));
-            root.borrow_mut().add_child(Box::new(tri_3));
-            root.borrow_mut().add_child(Box::new(tri_4));
+            // root.borrow_mut().add_child(Box::new(wire_cube));
+            // root.borrow_mut().add_child(Box::new(grid));
+            // root.borrow_mut().add_child(Box::new(tri_1));
+            // root.borrow_mut().add_child(Box::new(tri_2));
+            // root.borrow_mut().add_child(Box::new(tri_3));
+            // root.borrow_mut().add_child(Box::new(tri_4));
         });
         let gl = Mutex::new(Arc::new(gl));
 
         Self {
           gl: gl,
           time: 0.0,
-          model_matrix: Matrix::identity(),
+          model_matrix: Matrix::new(),
           camera: camera
         }
     }
@@ -157,7 +157,7 @@ impl WebClient {
         let dt = (self.time - old_time) as f32;
 
         self.camera.update(dt, &INPUT.lock().unwrap());
-        self.camera.matrices.calc_model_matrix(None);
+        // self.camera.matrices.calc_model_matrix(None);
         // self.camera.matrices.model_matrix.ident();
         // self.camera.matrices.model_matrix.rotate_y(self.camera.matrices.get_rotation()[0]);
         // self.camera.matrices.model_matrix.rotate_x(self.camera.matrices.get_rotation()[1]);

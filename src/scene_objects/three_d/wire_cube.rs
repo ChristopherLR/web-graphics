@@ -136,10 +136,9 @@ impl SceneObject for WireCube {
     // self.matrices.model_matrix.print();
     //view.print();
 
-    let model = self.matrices.model_matrix.as_slice();
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_view), false, &view.as_slice());
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &model);
-    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_proj), false, &proj.as_slice());
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_view), false, &view.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_model), false, &self.matrices.model_matrix.0);
+    gl.uniform_matrix4fv_with_f32_array(Some(&self.u_proj), false, &proj.0);
 
     gl.draw_elements_with_i32(GL::LINES, self.index_length as i32, GL::UNSIGNED_INT, 0);
   }

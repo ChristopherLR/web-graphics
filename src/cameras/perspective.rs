@@ -24,7 +24,7 @@ impl PerspectiveCamera {
   pub fn new(height: f32, fovy: f32, aspect: f32, near: f32, far: f32) -> PerspectiveCamera {
     let mut matrices = Matrices::new();
     matrices.translate(0.0, height, 0.0);
-    let perspective = perspective(aspect, fovy, far, near);
+    let perspective = Matrix::get_perspective_matrix(aspect, fovy, far, near);
 
     PerspectiveCamera {
       matrices: matrices,
@@ -39,7 +39,7 @@ impl PerspectiveCamera {
   }
 
   pub fn get_view_matrix(&self) -> Matrix {
-    self.matrices.model_matrix.try_inverse().unwrap()
+    self.matrices.model_matrix.invert().unwrap()
   }
 
   pub fn get_perspective_matrix(&self) -> Matrix {
