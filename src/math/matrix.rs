@@ -521,9 +521,12 @@ impl Matrices {
     self.model_matrix.translate_arr(self.position);
     // self.model_matrix.print();
     self.model_matrix.rotate_y(self.angle[1]);
-    // self.model_matrix.print();
+    
     self.model_matrix.rotate_x(self.angle[0]);
     // self.model_matrix.print();
+    if self.angle[0] > 0.0 {
+      self.model_matrix.print();
+    }
     self.model_matrix.rotate_z(self.angle[2]);
     // self.model_matrix.print();
     self.model_matrix.scale_arr(self.scale);

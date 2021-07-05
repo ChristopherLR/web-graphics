@@ -83,8 +83,9 @@ impl WebClient {
         wire_cube.matrices.translate(0.0, 0.0, 0.0);
 
         let mut cube = Cube::new(&gl);
-        cube.matrices.set_scale(0.25, 0.25, 0.25);
+        cube.matrices.set_scale(1.0, 1.0, 1.0);
         cube.matrices.translate(0.0, 0.0, 1.0);
+        cube.matrices.rotate_x(PI/2.0);
 
         let mut grid = Grid::new(&gl);
         grid.matrices.set_scale(0.25, 0.25, 0.25);
