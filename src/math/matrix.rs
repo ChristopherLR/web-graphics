@@ -539,7 +539,7 @@ impl Matrices {
       scale: [1.0, 1.0, 1.0],
     }
   }
-  pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>, transpose: bool) {
+  pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>) {
     match parent {
       Some(p) => { self.model_matrix.set(Some(p));},
       None => { self.model_matrix.ident();}
@@ -558,9 +558,7 @@ impl Matrices {
     // self.model_matrix.print();
     self.model_matrix.scale_arr(self.scale);
     // self.model_matrix.print();
-    if transpose {
-      self.model_matrix.transpose();
-    }
+    self.model_matrix.transpose();
   }
   pub fn get_position(&self) -> [f32; 3] {
     self.position

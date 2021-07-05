@@ -94,7 +94,7 @@ impl SceneObject for Cube {
   }
 
   fn calc_model_matrix(&mut self, parent_matrix: Option<&Matrix>){
-    self.matrices.calc_model_matrix(parent_matrix, true);
+    self.matrices.calc_model_matrix(parent_matrix);
   }
 
   fn update_self(&mut self, dt: f32, input: &InputState) {
@@ -120,7 +120,7 @@ impl SceneObject for Cube {
     let mut proj = camera.get_perspective_matrix();
     // view.ident();
     // proj.ident();
-    self.matrices.model_matrix.print();
+    // self.matrices.model_matrix.print();
     // view.print();
     // proj.print();
     // console_log!("{:?}", proj);
