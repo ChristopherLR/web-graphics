@@ -99,7 +99,7 @@ impl SceneObject for Cube {
 
   fn update_self(&mut self, dt: f32, input: &InputState) {
     // self.matrices.rotate_x(0.01);
-    // self.matrices.rotate_y(0.01);
+    self.matrices.rotate_y(0.01);
     // self.matrices.rotate_z(0.01);
   }
 

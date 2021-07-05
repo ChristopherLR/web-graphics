@@ -74,7 +74,7 @@ impl WebClient {
         });
 
         let mut camera = PerspectiveCamera::new(0.0, PI/3.0, 1.0, 0.1, 10.0);
-        camera.matrices.translate(0.0, 0.0, -1.0);
+        camera.matrices.translate(0.0, 0.0, -20.0);
         // camera.matrices.rotate_x(PI/2.0);
         // camera.calc_model_matrix(None);
 
@@ -127,7 +127,7 @@ impl WebClient {
 
         ROOT.with(|root|{
             root.borrow_mut().add_child(Box::new(cube));
-            // root.borrow_mut().add_child(Box::new(wire_cube));
+            root.borrow_mut().add_child(Box::new(wire_cube));
             // root.borrow_mut().add_child(Box::new(grid));
             // root.borrow_mut().add_child(Box::new(tri_1));
             // root.borrow_mut().add_child(Box::new(tri_2));
@@ -159,7 +159,7 @@ impl WebClient {
         let dt = (self.time - old_time) as f32;
 
         self.camera.update(dt, &INPUT.lock().unwrap());
-        self.camera.matrices.calc_model_matrix(None, false);
+        self.camera.matrices.calc_model_matrix(None, true);
         // self.camera.matrices.model_matrix.ident();
         // self.camera.matrices.model_matrix.rotate_y(self.camera.matrices.get_rotation()[0]);
         // self.camera.matrices.model_matrix.rotate_x(self.camera.matrices.get_rotation()[1]);
