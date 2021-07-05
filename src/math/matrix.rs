@@ -135,22 +135,22 @@ impl Matrix {
     let tmp_0 = self.0[0];
     let tmp_2 = self.0[2];
     self.0[0] = tmp_0*rxc - tmp_2*rxs;
-    self.0[2] = tmp_0*rxs + tmp_2*rxc;
+    self.0[2] = -(tmp_0*rxs + tmp_2*rxc);
 
     let tmp_0 = self.0[4];
     let tmp_2 = self.0[6];
     self.0[4] = tmp_0*rxc - tmp_2*rxs;
-    self.0[6] = tmp_0*rxs + tmp_2*rxc;
+    self.0[6] = -(tmp_0*rxs + tmp_2*rxc);
 
     let tmp_0 = self.0[8];
     let tmp_2 = self.0[10];
     self.0[8]  = tmp_0*rxc - tmp_2*rxs;
-    self.0[10] = tmp_0*rxs + tmp_2*rxc;
+    self.0[10] = -(tmp_0*rxs + tmp_2*rxc);
 
     let tmp_0 = self.0[12];
     let tmp_2 = self.0[14];
     self.0[12] = tmp_0*rxc - tmp_2*rxs;
-    self.0[14] = tmp_0*rxs + tmp_2*rxc;
+    self.0[14] = -(tmp_0*rxs + tmp_2*rxc);
 
   }
   pub fn rotate_z(&mut self, radians: f32){
