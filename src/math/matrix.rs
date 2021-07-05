@@ -111,23 +111,23 @@ impl Matrix {
 
     let tmp_1 = self.0[1];
     let tmp_2 = self.0[2];
-    self.0[1] = tmp_1*rxc - tmp_2*rxs;
-    self.0[2] = tmp_2*rxc + tmp_1*rxs;
+    self.0[1] = tmp_1*rxc + tmp_2*rxs;
+    self.0[2] = tmp_2*rxc - tmp_1*rxs;
 
     let tmp_1 = self.0[5];
     let tmp_2 = self.0[6];
-    self.0[5] = tmp_1*rxc - tmp_2*rxs;
-    self.0[6] = tmp_2*rxc + tmp_1*rxs;
+    self.0[5] = tmp_1*rxc + tmp_2*rxs;
+    self.0[6] = tmp_2*rxc - tmp_1*rxs;
 
     let tmp_1 = self.0[9];
     let tmp_2 = self.0[10];
-    self.0[9] = tmp_1*rxc - tmp_2*rxs;
-    self.0[10]= tmp_2*rxc + tmp_1*rxs;
+    self.0[9] = tmp_1*rxc + tmp_2*rxs;
+    self.0[10]= tmp_2*rxc - tmp_1*rxs;
 
     let tmp_1 = self.0[13];
     let tmp_2 = self.0[14];
-    self.0[13]= tmp_1*rxc - tmp_2*rxs;
-    self.0[14]= tmp_2*rxc + tmp_1*rxs;
+    self.0[13]= tmp_1*rxc + tmp_2*rxs;
+    self.0[14]= tmp_2*rxc - tmp_1*rxs;
   }
   pub fn rotate_y(&mut self, radians: f32){
     let (rxc, rxs) = (radians.cos(), radians.sin());
@@ -135,22 +135,22 @@ impl Matrix {
     let tmp_0 = self.0[0];
     let tmp_2 = self.0[2];
     self.0[0] = tmp_0*rxc - tmp_2*rxs;
-    self.0[2] = -(tmp_0*rxs + tmp_2*rxc);
+    self.0[2] = tmp_0*rxs + tmp_2*rxc;
 
     let tmp_0 = self.0[4];
     let tmp_2 = self.0[6];
     self.0[4] = tmp_0*rxc - tmp_2*rxs;
-    self.0[6] = -(tmp_0*rxs + tmp_2*rxc);
+    self.0[6] = tmp_0*rxs + tmp_2*rxc;
 
     let tmp_0 = self.0[8];
     let tmp_2 = self.0[10];
     self.0[8]  = tmp_0*rxc - tmp_2*rxs;
-    self.0[10] = -(tmp_0*rxs + tmp_2*rxc);
+    self.0[10] = tmp_0*rxs + tmp_2*rxc;
 
     let tmp_0 = self.0[12];
     let tmp_2 = self.0[14];
     self.0[12] = tmp_0*rxc - tmp_2*rxs;
-    self.0[14] = -(tmp_0*rxs + tmp_2*rxc);
+    self.0[14] = tmp_0*rxs + tmp_2*rxc;
 
   }
   pub fn rotate_z(&mut self, radians: f32){
@@ -465,6 +465,32 @@ impl Matrix {
     Matrix(perspective)
   }
 
+  pub fn transpose(&mut self){
+    let mut matrix = [0.0; 16];
+
+    matrix[0] = self.0[0];
+    matrix[1] = self.0[4];
+    matrix[2] = self.0[8];
+    matrix[3] = self.0[12];
+
+    matrix[4] = self.0[1];
+    matrix[5] = self.0[5];
+    matrix[6] = self.0[9];
+    matrix[7] = self.0[13];
+
+    matrix[8] = self.0[2];
+    matrix[9] = self.0[6];
+    matrix[10] = self.0[10];
+    matrix[11] = self.0[14];
+
+    matrix[12] = self.0[3];
+    matrix[13] = self.0[7];
+    matrix[14] = self.0[11];
+    matrix[15] = self.0[15];
+
+    self.0 = matrix;
+  }
+
 }
 
 impl Mul for Matrix {
@@ -513,7 +539,7 @@ impl Matrices {
       scale: [1.0, 1.0, 1.0],
     }
   }
-  pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>) {
+  pub fn calc_model_matrix(&mut self, parent: Option<&Matrix>, transpose: bool) {
     match parent {
       Some(p) => { self.model_matrix.set(Some(p));},
       None => { self.model_matrix.ident();}
@@ -526,12 +552,15 @@ impl Matrices {
     // self.model_matrix.print();
 
     self.model_matrix.rotate_z(self.angle[2]);
-    if self.angle[1] > 0.0 {
+    if self.angle[0] > 0.0 {
       self.model_matrix.print();
     }
     // self.model_matrix.print();
     self.model_matrix.scale_arr(self.scale);
     // self.model_matrix.print();
+    if transpose {
+      self.model_matrix.transpose();
+    }
   }
   pub fn get_position(&self) -> [f32; 3] {
     self.position

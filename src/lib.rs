@@ -84,9 +84,9 @@ impl WebClient {
 
         let mut cube = Cube::new(&gl);
         cube.matrices.set_scale(0.25, 0.25, 0.25);
-        cube.matrices.translate(0.0, 0.0, 0.0);
-        cube.matrices.rotate_y(PI/2.0);
-        cube.matrices.rotate_x(PI/2.0);
+        cube.matrices.translate(0.0, 0.0, 1.0);
+        // cube.matrices.rotate_y(PI/2.0);
+        // cube.matrices.rotate_x(PI/2.0);
 
         let mut grid = Grid::new(&gl);
         grid.matrices.set_scale(0.25, 0.25, 0.25);
@@ -159,7 +159,7 @@ impl WebClient {
         let dt = (self.time - old_time) as f32;
 
         self.camera.update(dt, &INPUT.lock().unwrap());
-        // self.camera.matrices.calc_model_matrix(None);
+        self.camera.matrices.calc_model_matrix(None, false);
         // self.camera.matrices.model_matrix.ident();
         // self.camera.matrices.model_matrix.rotate_y(self.camera.matrices.get_rotation()[0]);
         // self.camera.matrices.model_matrix.rotate_x(self.camera.matrices.get_rotation()[1]);

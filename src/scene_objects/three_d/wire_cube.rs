@@ -109,7 +109,7 @@ impl SceneObject for WireCube {
   }
 
   fn calc_model_matrix(&mut self, parent_matrix: Option<&Matrix>){
-    self.matrices.calc_model_matrix(parent_matrix);
+    self.matrices.calc_model_matrix(parent_matrix, true);
   }
 
   fn update_self(&mut self, dt: f32, input: &InputState) {
