@@ -111,23 +111,23 @@ impl Matrix {
 
     let tmp_1 = self.0[1];
     let tmp_2 = self.0[2];
-    self.0[1] = tmp_1*rxc + tmp_2*rxs;
-    self.0[2] = tmp_2*rxc - tmp_1*rxs;
+    self.0[1] = tmp_1*rxc - tmp_2*rxs;
+    self.0[2] = tmp_2*rxc + tmp_1*rxs;
 
     let tmp_1 = self.0[5];
     let tmp_2 = self.0[6];
-    self.0[5] = tmp_1*rxc + tmp_2*rxs;
-    self.0[6] = tmp_2*rxc - tmp_1*rxs;
+    self.0[5] = tmp_1*rxc - tmp_2*rxs;
+    self.0[6] = tmp_2*rxc + tmp_1*rxs;
 
     let tmp_1 = self.0[9];
     let tmp_2 = self.0[10];
-    self.0[9] = tmp_1*rxc + tmp_2*rxs;
-    self.0[10]= tmp_2*rxc - tmp_1*rxs;
+    self.0[9] = tmp_1*rxc - tmp_2*rxs;
+    self.0[10]= tmp_2*rxc + tmp_1*rxs;
 
     let tmp_1 = self.0[13];
     let tmp_2 = self.0[14];
-    self.0[13]= tmp_1*rxc + tmp_2*rxs;
-    self.0[14]= tmp_2*rxc - tmp_1*rxs;
+    self.0[13]= tmp_1*rxc - tmp_2*rxs;
+    self.0[14]= tmp_2*rxc + tmp_1*rxs;
   }
   pub fn rotate_y(&mut self, radians: f32){
     let (rxc, rxs) = (radians.cos(), radians.sin());
@@ -524,10 +524,11 @@ impl Matrices {
     
     self.model_matrix.rotate_x(self.angle[0]);
     // self.model_matrix.print();
-    if self.angle[0] > 0.0 {
+
+    self.model_matrix.rotate_z(self.angle[2]);
+    if self.angle[1] > 0.0 {
       self.model_matrix.print();
     }
-    self.model_matrix.rotate_z(self.angle[2]);
     // self.model_matrix.print();
     self.model_matrix.scale_arr(self.scale);
     // self.model_matrix.print();
