@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 extern crate wasm_bindgen;
 extern crate wee_alloc;
 mod gl_setup;
@@ -9,17 +10,15 @@ pub mod math;
 mod input;
 mod cameras;
 mod output;
+mod keycode;
 #[macro_use]
 extern crate lazy_static;
-extern crate nalgebra as na;
-extern crate nalgebra_glm as glm;
 
 use wasm_bindgen::prelude::*;
-use scene_objects::{ SceneObject, Pivot, two_d::TriDown, three_d::{Cube, WireCube, Grid }};
+use scene_objects::{ SceneObject, Pivot, three_d::{Cube, WireCube, Grid }};
 use cameras::PerspectiveCamera;
 use std::sync::{ Arc, Mutex };
 use math::matrix::Matrix;
-use web_sys::*;
 use chrono::prelude::*;
 use std::cell::RefCell;
 use std::f32::consts::PI;
@@ -106,22 +105,19 @@ impl WebClient {
     }
 
     pub fn update(&mut self, time: f64) -> Result<(), JsValue> {
-        let (d, x, y) = INPUT.lock().unwrap().mouse;
-        let rot = match d {
-            true => 0.01,
-            false => -0.01,
-        };
+        // let (d, x, y) = INPUT.lock().unwrap().mouse;
+        // let rot = match d {
+        //     true => 0.01,
+        //     false => -0.01,
+        // };
         let old_time : f64 = self.time;
         self.time = time as f64;
         let dt = (self.time - old_time) as f32;
 
         self.camera.update(dt, &INPUT.lock().unwrap());
         self.camera.matrices.calc_model_matrix(None);
-        // self.camera.matrices.model_matrix.ident();
-        // self.camera.matrices.model_matrix.rotate_y(self.camera.matrices.get_rotation()[0]);
-        // self.camera.matrices.model_matrix.rotate_x(self.camera.matrices.get_rotation()[1]);
-        // self.camera.matrices.model_matrix.translate_arr(self.camera.matrices.get_position());
 
+        // console_log!("{}", dt);
         OUTPUT.with(|output|{
             output.borrow_mut().update_fps(((1.0/dt) * 1000.0).round());
         });
@@ -140,7 +136,7 @@ impl WebClient {
             // let mut rt = root.borrow_mut();
             // let mat = rt.matrices.model_matrix.ident();
             // let mat = rt.matrices.model_matrix.clone();
-            root.borrow_mut().draw(Some(&gl), None, &self.camera);
+            root.borrow_mut().draw(Some(&gl), Some(&self.model_matrix), &self.camera);
         });
     }
 }

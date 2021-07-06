@@ -34,7 +34,7 @@ rust.then((m) => {
     }
   }, true)
 
-  const FRAME_RATE = 60.0
+  const FRAME_RATE = 100.0
   const FRAME_TIME = (1.0 / FRAME_RATE)*1000.0;
   let lastDrawTime = -1
   let elapsedTime = 0;

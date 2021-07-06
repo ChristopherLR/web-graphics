@@ -1,9 +1,10 @@
 use crate::math::matrix::*;
+use crate::math::vector::*;
 use std::f32::consts::PI;
 use crate::scene_objects::SceneObject;
 use crate::input::InputState;
 use crate::log;
-use glm::perspective;
+use crate::keycode::KeyCode;
 
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
@@ -33,8 +34,8 @@ impl PerspectiveCamera {
       near: near,
       far: far,
       perspective: perspective,
-      rotation_speed: PI/2.0,
-      movement_speed: 3.0,
+      rotation_speed: (PI/2.0)/1000.0,
+      movement_speed: 3.0/1000.0,
     }
   }
 
@@ -71,32 +72,66 @@ impl SceneObject for PerspectiveCamera {
   }
 
   fn update_self(&mut self, dt: f32, input: &InputState) {
-    match input.get_key_pressed() {
-      (true, x) => { 
-        console_log!("{}", x);
-        let mut c_pos = self.matrices.get_position();
-        match x {
-          87 => { 
-            c_pos[2]-=0.1;
-            &self.matrices.set_position_arr(c_pos); 
-          },
-          79 => { &self.matrices.translate(0.0, 0.1, 0.0); },
-          83 => { 
-            c_pos[2]+=0.1;
-            &self.matrices.set_position_arr(c_pos);
-          },
-          76 => { &self.matrices.translate(0.0, -0.1, 0.0); },
-          38 => { &self.matrices.rotate_x(-PI/60.0); },
-          40 => { &self.matrices.rotate_x(PI/60.0); },
-          37 => { &self.matrices.rotate_y(-PI/60.0); },
-          39 => { &self.matrices.rotate_y(PI/60.0); },
-          33 => { self.fovy += 0.01; },
-          34 => { self.fovy -= 0.01; },
-          _ => {}
-        }
-      },
-      (false, _) => {}
+    let keys = input.get_keys_pressed();
+    let movement = self.movement_speed * dt;
+    let rotation = self.rotation_speed * dt;
+    let position = self.matrices.get_position();
+    let angle = self.matrices.get_rotation();
+    let mut new_pos: Vector3<f32> = Vector3::new(0.0,0.0,0.0);
+    let mut new_angle: Vector3<f32> = Vector3::new(0.0,0.0,0.0);
 
+    for (_, key) in keys {
+      match key {
+        KeyCode::W => {
+          new_pos.z -= movement;
+          // self.matrices.translate(0.0, 0.0, -0.1)
+        },
+        KeyCode::S => {
+          new_pos[2] += movement;
+          // self.matrices.translate(0.0, 0.0, 0.1)
+        },
+        KeyCode::Q => {
+          new_pos[0] -= movement;
+          // self.matrices.translate(-0.1, 0.0, 0.0)
+        },
+        KeyCode::E => {
+          new_pos[0] += movement;
+          // self.matrices.translate(0.1, 0.0, 0.0)
+        },
+        KeyCode::O => {
+          new_pos[1] += movement;
+          // self.matrices.translate(0.0, 0.1, 0.0)
+        },
+        KeyCode::L => {
+          new_pos[1] -= movement;
+          // self.matrices.translate(0.0, -0.1, 0.0)
+        },
+        KeyCode::A => {
+          new_angle[1] += rotation;
+          // self.matrices.rotate_y(PI/60.0)
+        },
+        KeyCode::D => {
+          new_angle[1] -= rotation;
+          // self.matrices.rotate_y(-PI/60.0)
+        },
+        KeyCode::Up => {
+          new_angle[0] += rotation;
+          // self.matrices.rotate_x(PI/60.0)
+        },
+        KeyCode::Down => {
+          new_angle[0] -= rotation;
+          // self.matrices.rotate_x(-PI/60.0)
+        },
+        _ => {}
+      }
+
+      new_pos.rotate_x(angle[0]);
+      new_pos.rotate_y(angle[1]);
+      new_pos.rotate_z(angle[2]);
+      self.matrices.translate(new_pos.x, new_pos.y, new_pos.z);
+      self.matrices.rotate_x(new_angle.x);
+      self.matrices.rotate_y(new_angle.y);
+      self.matrices.rotate_z(new_angle.z);
     };
 
     // let perspective = Matrix::get_perspective_matrix(self.fovy, self.far, self.near);

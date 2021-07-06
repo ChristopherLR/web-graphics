@@ -1,3 +1,4 @@
+#![allow(dead_code)]
 use web_sys::WebGl2RenderingContext as GL;
 use crate::math::matrix::Matrix;
 use crate::input::InputState;

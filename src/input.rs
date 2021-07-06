@@ -1,11 +1,13 @@
 use crate::log;
+use std::collections::HashMap;
+use crate::keycode::KeyCode;
 
 macro_rules! console_log {
     ($($t:tt)*) => (log(&format_args!($($t)*).to_string()))
 }
 pub struct InputState {
   pub mouse: (bool, f32, f32),
-  pub key_pressed: (bool, u32),
+  pub keys_pressed: HashMap<u32, KeyCode>,
   pub width: f32,
   pub height: f32,
   pub aspect_ratio: f32,
@@ -15,7 +17,7 @@ impl InputState {
   pub fn new() -> InputState {
     InputState {
       mouse: (false, 0.0, 0.0),
-      key_pressed: (false, 0),
+      keys_pressed: HashMap::new(),
       width: 0.0,
       height: 0.0,
       aspect_ratio: 0.0,
@@ -40,24 +42,26 @@ impl InputState {
   }
 
   pub fn set_key_down(&mut self, keycode: u32) {
-    self.key_pressed = (true, keycode);
+    // self.key_pressed = (true, keycode);
+    self.keys_pressed.insert(keycode, KeyCode::from(keycode));
     // console_log!("c: {}, d: {}", keycode, true);
   }
 
   pub fn set_key_released(&mut self, keycode: u32) {
-    self.key_pressed = (false, keycode);
+    // self.key_pressed = (false, keycode);
+    self.keys_pressed.remove(&keycode);
     // console_log!("c: {}, d: {}", keycode, false);
   }
 
   pub fn set_window_size(&mut self, width: f32, height: f32){
-    console_log!("w: {}, h: {}", width, height);
+    // console_log!("w: {}, h: {}", width, height);
     self.width = width;
     self.height = height;
     self.aspect_ratio = width / height;
   }
 
-  pub fn get_key_pressed(&self) -> (bool, u32) {
-    self.key_pressed
+  pub fn get_keys_pressed(&self) -> &HashMap<u32, KeyCode> {
+    &self.keys_pressed
   }
 
 }
