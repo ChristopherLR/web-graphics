@@ -451,11 +451,12 @@ impl Matrix {
   pub fn get_perspective_matrix(aspect: f32, fovy: f32, far: f32, near: f32) -> Matrix {
 
     let mut perspective: [f32; 16] = [0.0; 16];
+    let sar = 1.0/(aspect*(fovy/2.0).tan());
     let s = 1.0/((fovy/2.0).tan());
     let range = far - near;
     let f = (-near-far)/range;
     let f2 = (2.0*far*near)/range;
-    perspective[0] = s;
+    perspective[0] = sar;
     perspective[5] = s;
     perspective[10] = -f;
     perspective[11] = -1.0;

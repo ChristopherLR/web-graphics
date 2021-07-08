@@ -61,7 +61,7 @@ pub struct WebClient{
 impl WebClient {
     #[wasm_bindgen(constructor)]
     pub fn new(height: f32, width: f32) -> Self {
-        console_log!("Creating Client");
+        console_log!("Creating Client, w: {}, h: {}", width, height);
 
         console_error_panic_hook::set_once();
         let (gl, infobox) = gl_setup::init_webgl_context().unwrap();
@@ -72,7 +72,7 @@ impl WebClient {
             output.borrow_mut().attach_infobox(infobox);
         });
 
-        let mut camera = PerspectiveCamera::new(0.0, PI/3.0, 1.0, 0.1, 10.0);
+        let mut camera = PerspectiveCamera::new(1.0, PI/3.0, width/height, 0.1, 10.0);
         camera.matrices.translate(0.0, 0.0, 1.0);
 
         let mut wire_cube = WireCube::new(&gl);
@@ -100,7 +100,8 @@ impl WebClient {
         }
     }
 
-    pub fn update_size(&self, height: f32, width: f32) {
+    pub fn update_size(&mut self, height: f32, width: f32) {
+        self.camera.set_aspect(width/height);
         INPUT.lock().unwrap().set_window_size(width, height);
     }
 

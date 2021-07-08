@@ -39,6 +39,12 @@ impl PerspectiveCamera {
     }
   }
 
+  pub fn set_aspect(&mut self, aspect: f32){
+    self.aspect = aspect;
+    let perspective = Matrix::get_perspective_matrix(self.aspect, self.fovy, self.far, self.near);
+    self.perspective = perspective;
+  }
+
   pub fn get_view_matrix(&self) -> Matrix {
     self.matrices.model_matrix.invert().unwrap()
   }
@@ -49,10 +55,10 @@ impl PerspectiveCamera {
 
   pub fn get_view_direction(&self) -> [f32; 4] {
     let mut view_dir: [f32; 4] = [0.0; 4];
-    // view_dir[0] = self.matrices.model_matrix.0[2];
-    // view_dir[1] = self.matrices.model_matrix.0[6];
-    // view_dir[2] = self.matrices.model_matrix.0[10];
-    // view_dir[3] = self.matrices.model_matrix.0[14];
+    view_dir[0] = self.matrices.model_matrix.0[2];
+    view_dir[1] = self.matrices.model_matrix.0[6];
+    view_dir[2] = self.matrices.model_matrix.0[10];
+    view_dir[3] = self.matrices.model_matrix.0[14];
     view_dir
   }
 
@@ -75,72 +81,32 @@ impl SceneObject for PerspectiveCamera {
     let keys = input.get_keys_pressed();
     let movement = self.movement_speed * dt;
     let rotation = self.rotation_speed * dt;
-    let position = self.matrices.get_position();
     let angle = self.matrices.get_rotation();
     let mut new_pos: Vector3<f32> = Vector3::new(0.0,0.0,0.0);
     let mut new_angle: Vector3<f32> = Vector3::new(0.0,0.0,0.0);
 
     for (_, key) in keys {
       match key {
-        KeyCode::W => {
-          new_pos.z -= movement;
-          // self.matrices.translate(0.0, 0.0, -0.1)
-        },
-        KeyCode::S => {
-          new_pos[2] += movement;
-          // self.matrices.translate(0.0, 0.0, 0.1)
-        },
-        KeyCode::Q => {
-          new_pos[0] -= movement;
-          // self.matrices.translate(-0.1, 0.0, 0.0)
-        },
-        KeyCode::E => {
-          new_pos[0] += movement;
-          // self.matrices.translate(0.1, 0.0, 0.0)
-        },
-        KeyCode::O => {
-          new_pos[1] += movement;
-          // self.matrices.translate(0.0, 0.1, 0.0)
-        },
-        KeyCode::L => {
-          new_pos[1] -= movement;
-          // self.matrices.translate(0.0, -0.1, 0.0)
-        },
-        KeyCode::A => {
-          new_angle[1] += rotation;
-          // self.matrices.rotate_y(PI/60.0)
-        },
-        KeyCode::D => {
-          new_angle[1] -= rotation;
-          // self.matrices.rotate_y(-PI/60.0)
-        },
-        KeyCode::Up => {
-          new_angle[0] += rotation;
-          // self.matrices.rotate_x(PI/60.0)
-        },
-        KeyCode::Down => {
-          new_angle[0] -= rotation;
-          // self.matrices.rotate_x(-PI/60.0)
-        },
+        KeyCode::W => {new_pos.z -= movement;},
+        KeyCode::S => {new_pos.z += movement;},
+        KeyCode::Q => {new_pos.x -= movement;},
+        KeyCode::E => {new_pos.x += movement;},
+        KeyCode::O => {new_pos.y += movement;},
+        KeyCode::L => {new_pos.y -= movement;},
+        KeyCode::A => {new_angle.y += rotation;},
+        KeyCode::D => {new_angle.y -= rotation;},
+        KeyCode::Up => {new_angle.x += rotation;},
+        KeyCode::Down => {new_angle.x -= rotation;},
         _ => {}
       }
-
-      new_pos.rotate_x(angle[0]);
-      new_pos.rotate_y(angle[1]);
-      new_pos.rotate_z(angle[2]);
-      self.matrices.translate(new_pos.x, new_pos.y, new_pos.z);
-      self.matrices.rotate_x(new_angle.x);
-      self.matrices.rotate_y(new_angle.y);
-      self.matrices.rotate_z(new_angle.z);
     };
 
-    // let perspective = Matrix::get_perspective_matrix(self.fovy, self.far, self.near);
-    // self.perspective = perspective;
-    // self.matrices.rotate_x(0.01);
-    // self.matrices.rotate_y(0.01);
-    // self.matrices.rotate_z(0.01);
-    // self.matrices.rotate_x(0.01);
-    // log(&format!("{:?}", self.matrices.get_rotation()))
-    // self.matrices.rotate_z(0.01);
+    new_pos.rotate_x(angle[0]);
+    new_pos.rotate_y(angle[1]);
+    new_pos.rotate_z(angle[2]);
+    self.matrices.translate(new_pos.x, new_pos.y, new_pos.z);
+    self.matrices.rotate_x(new_angle.x);
+    self.matrices.rotate_y(new_angle.y);
+    self.matrices.rotate_z(new_angle.z);
   }
 }
